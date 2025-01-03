@@ -2,3 +2,4 @@ docker/
 tmp/
 pre_cmd.txt
 post_cmd.txt
+.env

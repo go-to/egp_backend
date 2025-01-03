@@ -4,6 +4,7 @@ go 1.23.4
 
 require (
 	github.com/go-to/egp-protobuf/pb v0.0.0-20250101170752-8d9f0daf1e36
+	github.com/joho/godotenv v1.5.1
 	google.golang.org/grpc v1.69.2
 )
 
