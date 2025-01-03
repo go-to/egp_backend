@@ -1,6 +1,6 @@
 module github.com/go-to/egp-backend
 
-go 1.23.3
+go 1.23.4
 
 require (
 	github.com/go-to/egp-protobuf/pb v0.0.0-20250101170752-8d9f0daf1e36

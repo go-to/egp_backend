@@ -1,3 +1,14 @@
+DOCKER_CONTAINER_API="api"
+DOCKER_CONTAINER_DB="db"
+
+up:
+	docker compose up -d
+down:
+	docker compose down
+logs-api:
+	docker logs -f ${DOCKER_CONTAINER_API}
+logs-db:
+	docker logs -f ${DOCKER_CONTAINER_DB}
 run:
 	go run main.go
 grpcurl-test:
