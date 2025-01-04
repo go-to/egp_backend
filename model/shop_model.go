@@ -1,8 +1,28 @@
 package model
 
 type Shop struct {
-	ID       int64  `gorm:"primary_key"`
-	ShopName string `gorm:"type:varchar(255)"`
+	ID                         int64
+	No                         int32
+	ShopName                   string
+	MenuName                   string
+	Phone                      string
+	Address                    string
+	BusinessDays               string
+	RegularHoliday             string
+	BusinessHours              string
+	ChargePrice                string
+	NormalizedChargePrice      int32
+	SinglePrice                string
+	NormalizedSinglePrice      int32
+	SetPrice                   string
+	NormalizedSetPrice         int32
+	BeerType                   string
+	NeedsReservation           string
+	NormalizedNeedsReservation bool
+	UseHachipay                string
+	NormalizedUseHachipay      bool
+	IsOpenHoliday              bool
+	IsIrregularHoliday         bool
 }
 
 var shops []Shop
