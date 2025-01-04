@@ -29,8 +29,28 @@ func (s *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 
 	for _, v := range *shops {
 		outputShops = append(outputShops, &pb.Shop{
-			ID:       v.ID,
-			ShopName: v.ShopName,
+			ID:                         v.ID,
+			No:                         v.No,
+			ShopName:                   v.ShopName,
+			MenuName:                   v.MenuName,
+			Phone:                      v.Phone,
+			Address:                    v.Address,
+			BusinessDays:               v.BusinessDays,
+			RegularHoliday:             v.RegularHoliday,
+			BusinessHours:              v.BusinessHours,
+			ChargePrice:                v.ChargePrice,
+			NormalizedChargePrice:      v.NormalizedChargePrice,
+			SinglePrice:                v.SinglePrice,
+			NormalizedSinglePrice:      v.NormalizedSinglePrice,
+			SetPrice:                   v.SetPrice,
+			NormalizedSetPrice:         v.NormalizedSetPrice,
+			BeerType:                   v.BeerType,
+			NeedsReservation:           v.NeedsReservation,
+			NormalizedNeedsReservation: v.NormalizedNeedsReservation,
+			UseHachipay:                v.UseHachipay,
+			NormalizedUseHachipay:      v.NormalizedUseHachipay,
+			IsOpenHoliday:              v.IsOpenHoliday,
+			IsIrregularHoliday:         v.IsIrregularHoliday,
 		})
 	}
 
