@@ -16,9 +16,14 @@ import (
 
 type Server struct {
 	pb.UnimplementedEgpServiceServer
+	Usecase Usecase
 }
 
-func New(port int) {
+type Usecase struct {
+	Shop usecase.ShopUsecase
+}
+
+func New(port int, u Usecase) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		panic(err)
@@ -26,7 +31,7 @@ func New(port int) {
 
 	s := grpc.NewServer()
 
-	pb.RegisterEgpServiceServer(s, NewServer())
+	pb.RegisterEgpServiceServer(s, NewServer(u))
 
 	reflection.Register(s)
 
@@ -45,22 +50,19 @@ func New(port int) {
 	s.GracefulStop()
 }
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(u Usecase) *Server {
+	return &Server{Usecase: u}
 }
 
 func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsResponse, error) {
-	fmt.Println("router.GetShops")
-
 	in := input.ShopsInput{
 		ShopsRequest: req,
 	}
 
-	out, err := usecase.GetShops(&in)
+	out, err := s.Usecase.Shop.GetShops(&in)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(&out)
 
-	return &out.ShopsResponse, err
+	return &out.ShopsResponse, nil
 }
