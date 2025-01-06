@@ -1,4 +1,4 @@
-module github.com/go-to/egp-backend
+module github.com/go-to/egp_backend
 
 go 1.23.4
 

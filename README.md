@@ -1,1 +1,1 @@
-# egp-backend
+# egp_backend

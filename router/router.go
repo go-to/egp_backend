@@ -3,9 +3,9 @@ package router
 import (
 	"context"
 	"fmt"
-	"github.com/go-to/egp-backend/usecase"
-	"github.com/go-to/egp-backend/usecase/input"
 	"github.com/go-to/egp-protobuf/pb"
+	"github.com/go-to/egp_backend/usecase"
+	"github.com/go-to/egp_backend/usecase/input"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
