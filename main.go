@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-to/egp-backend/model"
-	"github.com/go-to/egp-backend/repository"
-	"github.com/go-to/egp-backend/router"
-	"github.com/go-to/egp-backend/usecase"
+	"github.com/go-to/egp_backend/model"
+	"github.com/go-to/egp_backend/repository"
+	"github.com/go-to/egp_backend/router"
+	"github.com/go-to/egp_backend/usecase"
 	"github.com/joho/godotenv"
 	"log"
 	"os"

@@ -1,6 +1,6 @@
 package output
 
-import "github.com/go-to/egp-protobuf/pb"
+import "github.com/go-to/egp_protobuf/pb"
 
 type ShopsOutput struct {
 	ShopsResponse pb.ShopsResponse

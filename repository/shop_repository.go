@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/go-to/egp-backend/model"
+	"github.com/go-to/egp_backend/model"
 )
 
 type IShopRepository interface {
