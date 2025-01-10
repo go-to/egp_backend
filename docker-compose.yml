@@ -18,6 +18,7 @@ services:
     build: .
     volumes:
       - ./:/go/src/app
+      - ../egp_protobuf:/go/src/egp_protobuf
     ports:
       - "8080:8080"
     depends_on:

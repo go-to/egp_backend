@@ -2,10 +2,11 @@ package repository
 
 import (
 	"github.com/go-to/egp_backend/model"
+	"time"
 )
 
 type IShopRepository interface {
-	GetShops() (*[]model.Shop, error)
+	GetShops(now *time.Time) (*[]model.Shop, error)
 }
 
 type ShopRepository struct {
@@ -16,6 +17,6 @@ func NewShopRepository(m model.ShopModel) *ShopRepository {
 	return &ShopRepository{model: m}
 }
 
-func (s *ShopRepository) GetShops() (*[]model.Shop, error) {
-	return s.model.Find()
+func (s *ShopRepository) GetShops(t *time.Time) (*model.ShopsResult, error) {
+	return s.model.Find(t)
 }

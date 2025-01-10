@@ -1,9 +1,11 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/go-to/egp_backend/repository"
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_backend/usecase/output"
+	"github.com/go-to/egp_backend/util"
 	"github.com/go-to/egp_protobuf/pb"
 )
 
@@ -20,7 +22,13 @@ func NewShopUseCase(repo repository.ShopRepository) *ShopUsecase {
 }
 
 func (s *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
-	shops, err := s.repo.GetShops()
+
+	now := util.Now()
+	// FIXME デバッグ用なので最終的に消す
+	//now = time.Date(2025, 4, 1, 23, 0, 0, 0, util.Location)
+	fmt.Println(now)
+
+	shops, err := s.repo.GetShops(&now)
 	if err != nil {
 		return &output.ShopsOutput{}, nil
 	}
@@ -30,6 +38,8 @@ func (s *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	for _, v := range *shops {
 		outputShops = append(outputShops, &pb.Shop{
 			ID:                         v.ID,
+			EventID:                    v.EventID,
+			CategoryID:                 v.CategoryID,
 			No:                         v.No,
 			ShopName:                   v.ShopName,
 			MenuName:                   v.MenuName,
@@ -51,6 +61,13 @@ func (s *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			NormalizedUseHachipay:      v.NormalizedUseHachipay,
 			IsOpenHoliday:              v.IsOpenHoliday,
 			IsIrregularHoliday:         v.IsIrregularHoliday,
+			Latitude:                   v.Latitude,
+			Longitude:                  v.Longitude,
+			WeekNumber:                 v.WeekNumber,
+			DayOfWeek:                  int32(v.DayOfWeek),
+			StartTime:                  v.StartTime,
+			EndTime:                    v.EndTime,
+			IsHoliday:                  v.IsHoliday,
 		})
 	}
 
