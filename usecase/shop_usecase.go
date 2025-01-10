@@ -26,7 +26,7 @@ func (s *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	now := util.Now()
 	// FIXME デバッグ用なので最終的に消す
 	//now = time.Date(2025, 4, 1, 23, 0, 0, 0, util.Location)
-	fmt.Println(now)
+	//fmt.Println(now)
 
 	shops, err := s.repo.GetShops(&now)
 	if err != nil {
