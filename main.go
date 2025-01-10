@@ -6,6 +6,7 @@ import (
 	"github.com/go-to/egp_backend/repository"
 	"github.com/go-to/egp_backend/router"
 	"github.com/go-to/egp_backend/usecase"
+	"github.com/go-to/egp_backend/util"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
@@ -15,6 +16,10 @@ import (
 func main() {
 	// 環境変数読み込み
 	loadEnv()
+
+	// タイムゾーン
+	locationName := os.Getenv("LOCATION_NAME")
+	util.Init(locationName)
 
 	// DB接続
 	dbUser := os.Getenv("DB_USER")
