@@ -35,6 +35,11 @@ func (s *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	var outputShops []*pb.Shop
 
 	for _, v := range *shops {
+		inCurrentSales := true
+		if len(v.StartTime) == 0 || len(v.EndTime) == 0 {
+			inCurrentSales = false
+		}
+
 		outputShops = append(outputShops, &pb.Shop{
 			ID:                         v.ID,
 			EventID:                    v.EventID,
@@ -67,6 +72,7 @@ func (s *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			StartTime:                  v.StartTime,
 			EndTime:                    v.EndTime,
 			IsHoliday:                  v.IsHoliday,
+			InCurrentSales:             inCurrentSales,
 		})
 	}
 

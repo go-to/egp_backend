@@ -83,6 +83,7 @@ type ShopDetail struct {
 	StartTime                  string
 	EndTime                    string
 	IsHoliday                  bool
+	InCurrentSales             bool
 }
 
 type ShopsResult []ShopDetail
