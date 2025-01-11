@@ -24,3 +24,5 @@ grpcurl-shops:
 	grpcurl -plaintext localhost:8080 egp.EgpService.GetShops
 clean-branch:
 	git switch main && git branch | xargs git branch -d
+update-protobuf:
+	go get -u github.com/go-to/egp_protobuf/pb
