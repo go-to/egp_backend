@@ -162,17 +162,10 @@ shops_time.is_holiday
 	res := m.db.Conn.
 		Model(&Shop{}).
 		Select(fields).
-		Joins("inner join shops_location on shops.id = shops_location.shop_id").
-		//Joins("left join shops_time on shops.id = shops_time.shop_id").
-		Joins("left join (?) AS shops_time on shops.id = shops_time.shop_id",
-			m.db.Conn.
-				//Table("shops_time").
-				Model(&ShopsTime{}).
-				Select("*").
-				Where(shopsTimeTodayCondition, todayWeekNum, todayDayOfWeek, nowTime, nowTime).
-				Or(shopsTimeTomorrowCondition, tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime)).
-		//Where(shopsTimeTodayCondition, todayWeekNum, todayDayOfWeek, nowTime, nowTime).
-		//Or(shopsTimeTomorrowCondition, tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
+		Joins("INNER JOIN shops_location ON shops.id = shops_location.shop_id").
+		Joins("LEFT JOIN shops_time ON shops.id = shops_time.shop_id AND ("+shopsTimeTodayCondition+" OR "+shopsTimeTomorrowCondition+")",
+			todayWeekNum, todayDayOfWeek, nowTime, nowTime,
+			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
 		Order("shops.no ASC").
 		Scan(&shopsResult)
 	if res.Error != nil {
