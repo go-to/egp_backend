@@ -35,13 +35,15 @@ func main() {
 	}
 
 	// model設定
+	configModel := model.NewConfigModel(dbConn)
 	shopModel := model.NewShopModel(dbConn)
 
 	// repository設定
+	configRepository := repository.NewConfigRepository(*configModel)
 	shopRepository := repository.NewShopRepository(*shopModel)
 
 	// usecase設定
-	shopUsecase := usecase.NewShopUseCase(*shopRepository)
+	shopUsecase := usecase.NewShopUseCase(*configRepository, *shopRepository)
 
 	apiPortStr := os.Getenv("API_PORT")
 	apiPort, err := strconv.Atoi(apiPortStr)

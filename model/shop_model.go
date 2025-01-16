@@ -83,6 +83,7 @@ type ShopDetail struct {
 	StartTime                  string
 	EndTime                    string
 	IsHoliday                  bool
+	InCurrentSales             bool
 }
 
 type ShopsResult []ShopDetail
@@ -102,7 +103,7 @@ func (ShopsTime) TableName() string {
 }
 
 type IShopModel interface {
-	Find(now *time.Time) (*[]Shop, error)
+	Find(t *time.Time) (*ShopsResult, error)
 }
 
 type ShopModel struct {
@@ -156,23 +157,16 @@ shops_time.is_holiday
 	tomorrowDayOfWeek := util.GetWeekDay(&tomorrow)
 	nowTime := util.GetTime(t)
 
-	shopsTimeTodayCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
-	shopsTimeTomorrowCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND ? - INTERVAL 12 HOUR <= 0 AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
+	shopsTimeTodayCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND shops_time.is_holiday = 0 AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
+	shopsTimeTomorrowCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND shops_time.is_holiday = 0 AND ? - INTERVAL 12 HOUR <= 0 AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
 
 	res := m.db.Conn.
 		Model(&Shop{}).
 		Select(fields).
-		Joins("inner join shops_location on shops.id = shops_location.shop_id").
-		//Joins("left join shops_time on shops.id = shops_time.shop_id").
-		Joins("left join (?) AS shops_time on shops.id = shops_time.shop_id",
-			m.db.Conn.
-				//Table("shops_time").
-				Model(&ShopsTime{}).
-				Select("*").
-				Where(shopsTimeTodayCondition, todayWeekNum, todayDayOfWeek, nowTime, nowTime).
-				Or(shopsTimeTomorrowCondition, tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime)).
-		//Where(shopsTimeTodayCondition, todayWeekNum, todayDayOfWeek, nowTime, nowTime).
-		//Or(shopsTimeTomorrowCondition, tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
+		Joins("INNER JOIN shops_location ON shops.id = shops_location.shop_id").
+		Joins("LEFT JOIN shops_time ON shops.id = shops_time.shop_id AND ("+shopsTimeTodayCondition+" OR "+shopsTimeTomorrowCondition+")",
+			todayWeekNum, todayDayOfWeek, nowTime, nowTime,
+			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
 		Order("shops.no ASC").
 		Scan(&shopsResult)
 	if res.Error != nil {
