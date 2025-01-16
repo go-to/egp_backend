@@ -20,6 +20,14 @@ func Now() time.Time {
 	return time.Now().In(Location)
 }
 
+func ParseTime(layout string, value string) (time.Time, error) {
+	return time.Parse(layout, value)
+}
+
+func DateTime(year int, month time.Month, day, hour, min, sec, nsec int) time.Time {
+	return time.Date(year, month, day, hour, min, sec, nsec, Location)
+}
+
 func GetTime(t *time.Time) string {
 	hour, min, sec := t.Clock()
 	return fmt.Sprintf("%02d:%02d:%02d", hour, min, sec)
