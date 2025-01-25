@@ -1,10 +1,12 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/go-to/egp_backend/repository"
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_backend/usecase/output"
 	"github.com/go-to/egp_protobuf/pb"
+	"slices"
 )
 
 type IShopUsecase interface {
@@ -33,12 +35,22 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	}
 
 	var outputShops []*pb.Shop
+	var latLonList []string
 
 	for _, v := range *shops {
 		inCurrentSales := true
 		if len(v.StartTime) == 0 || len(v.EndTime) == 0 {
 			inCurrentSales = false
 		}
+		// 緯度経度が同じ場合は、重なり防止のためにマーカーの位置をずらす
+		latitude := v.Latitude
+		longitude := v.Longitude
+		latLon := fmt.Sprintf("%f,%f", latitude, longitude)
+		if slices.Contains(latLonList, latLon) {
+			latitude += 0.00002
+			longitude += 0.00002
+		}
+		latLonList = append(latLonList, latLon)
 
 		outputShops = append(outputShops, &pb.Shop{
 			ID:                         v.ID,
@@ -65,8 +77,8 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			NormalizedUseHachipay:      v.NormalizedUseHachipay,
 			IsOpenHoliday:              v.IsOpenHoliday,
 			IsIrregularHoliday:         v.IsIrregularHoliday,
-			Latitude:                   v.Latitude,
-			Longitude:                  v.Longitude,
+			Latitude:                   latitude,
+			Longitude:                  longitude,
 			WeekNumber:                 v.WeekNumber,
 			DayOfWeek:                  int32(v.DayOfWeek),
 			StartTime:                  v.StartTime,
