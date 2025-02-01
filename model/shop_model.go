@@ -157,8 +157,8 @@ shops_time.is_holiday
 	tomorrowDayOfWeek := util.GetWeekDay(&tomorrow)
 	nowTime := util.GetTime(t)
 
-	shopsTimeTodayCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND shops_time.is_holiday = 0 AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
-	shopsTimeTomorrowCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND shops_time.is_holiday = 0 AND ? - INTERVAL 12 HOUR <= 0 AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
+	shopsTimeTodayCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND shops_time.is_holiday = false AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
+	shopsTimeTomorrowCondition := "shops_time.week_number = ? AND shops_time.day_of_week = ? AND shops_time.is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND shops_time.start_time <= ? AND shops_time.end_time >= ?"
 
 	res := m.db.Conn.
 		Model(&Shop{}).

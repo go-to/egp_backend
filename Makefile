@@ -3,12 +3,12 @@ time=
 
 # env
 DOCKER_CONTAINER_API=api
-DOCKER_CONTAINER_DB=db
-DB_HOST=127.0.0.1
-DB_PORT=3306
+DOCKER_CONTAINER_DB=postgres
+DB_HOST=localhost
+DB_PORT=5432
 DB_NAME=egp
-DB_USER=root
-DB_PASS=root
+DB_USER=egp_user
+DB_PASS=password
 
 # cmd
 up:
@@ -20,9 +20,9 @@ logs-api:
 logs-db:
 	docker logs -f ${DOCKER_CONTAINER_DB}
 db-migrate-up:
-	migrate -path migrations -database 'mysql://${DB_USER}:${DB_PASS}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}' -verbose up
+	migrate -path migrations -database 'postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable' -verbose up
 db-migrate-down:
-	migrate -path migrations -database 'mysql://${DB_USER}:${DB_PASS}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}' -verbose down
+	migrate -path migrations -database 'postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable' -verbose down
 run:
 	go run main.go
 grpcurl-shops:

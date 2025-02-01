@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS shops_beer_types_link;
+DROP TABLE IF EXISTS egp.shops_beer_types_link;

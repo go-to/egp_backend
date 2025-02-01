@@ -1,1 +1,1 @@
-DELETE FROM shops_location;
+DELETE FROM egp.shops_location;

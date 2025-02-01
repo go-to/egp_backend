@@ -1,1 +1,1 @@
-DELETE FROM shops_time;
+DELETE FROM egp.shops_time;

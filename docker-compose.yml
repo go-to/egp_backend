@@ -1,8 +1,8 @@
 version: "3.9"
 services:
-  db:
+  mysql:
     image: mysql:8.4.3
-    container_name: db
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: egp
@@ -10,9 +10,23 @@ services:
       MYSQL_PASSWORD: password
       TZ: 'Asia/Tokyo'
     volumes:
-      - ./docker/db/data:/var/lib/mysql
+      - ./docker/db/mysql/data:/var/lib/mysql
     ports:
       - "3306:3306"
+  postgres:
+    image: postgis/postgis:17-3.5
+    platform: linux/amd64
+    container_name: postgres
+    environment:
+      POSTGRES_DB: egp
+      POSTGRES_USER: egp_user
+      POSTGRES_PASSWORD: password
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - ./db/postgres/data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
   api:
     container_name: api
     build: .
@@ -22,4 +36,5 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - mysql
+      - postgres

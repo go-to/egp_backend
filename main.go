@@ -24,11 +24,11 @@ func main() {
 	// DB接続
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
-	dbProtocol := os.Getenv("DB_PROTOCOL")
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
+	dbSchema := os.Getenv("DB_SCHEMA")
 	dbName := os.Getenv("DB_NAME")
-	dsn := fmt.Sprintf("%s:%s@%s(%s:%s)/%s", dbUser, dbPass, dbProtocol, dbHost, dbPort, dbName)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s search_path=%s port=%s sslmode=disable TimeZone=%s", dbHost, dbUser, dbPass, dbName, dbSchema, dbPort, locationName)
 	dbConn, err := model.Init(dsn)
 	if err != nil {
 		log.Fatal(err)

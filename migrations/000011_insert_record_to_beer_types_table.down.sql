@@ -1,1 +1,1 @@
-DELETE FROM beer_types;
+DELETE FROM egp.beer_types;
