@@ -6,7 +6,7 @@ import (
 )
 
 type IShopRepository interface {
-	GetShops(t *time.Time) (*model.ShopsResult, error)
+	GetShops(t *time.Time, s []int32, o []int32) (*model.ShopsResult, error)
 }
 
 type ShopRepository struct {
@@ -17,6 +17,6 @@ func NewShopRepository(m model.ShopModel) *ShopRepository {
 	return &ShopRepository{model: m}
 }
 
-func (r *ShopRepository) GetShops(t *time.Time) (*model.ShopsResult, error) {
-	return r.model.Find(t)
+func (r *ShopRepository) GetShops(t *time.Time, s []int32, o []int32) (*model.ShopsResult, error) {
+	return r.model.Find(t, s, o)
 }
