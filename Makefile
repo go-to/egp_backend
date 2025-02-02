@@ -20,9 +20,9 @@ logs-api:
 logs-db:
 	docker logs -f ${DOCKER_CONTAINER_DB}
 db-migrate-up:
-	migrate -path migrations -database 'postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable' -verbose up
+	migrate -path migrations -database 'postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?search_path=egp&sslmode=disable' -verbose up
 db-migrate-down:
-	migrate -path migrations -database 'postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable' -verbose down
+	migrate -path migrations -database 'postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?search_path=egp&sslmode=disable' -verbose down
 run:
 	go run main.go
 grpcurl-shops:
