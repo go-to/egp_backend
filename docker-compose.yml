@@ -9,6 +9,11 @@ services:
       POSTGRES_USER: egp_user
       POSTGRES_PASSWORD: password
       TZ: 'Asia/Tokyo'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U egp_user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - ./db/postgres/data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d
@@ -23,4 +28,5 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
