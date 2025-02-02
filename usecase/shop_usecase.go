@@ -6,6 +6,8 @@ import (
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_backend/usecase/output"
 	"github.com/go-to/egp_protobuf/pb"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	"slices"
 )
 
@@ -24,18 +26,32 @@ func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepo
 
 func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
 
+	searchTypes := in.ShopsRequest.GetSearchTypes()
+	var searchParams []int32
+	var orderParams []int32
+	for _, value := range searchTypes {
+		v := int32(value)
+		if slices.Contains(searchParams, v) {
+			continue
+		}
+		if key, exists := pb.SearchType_name[v]; exists {
+			searchParams = append(searchParams, pb.SearchType_value[key])
+		}
+	}
+
 	now, err := u.config.GetTime()
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
 
-	shops, err := u.shop.GetShops(&now)
+	shops, err := u.shop.GetShops(&now, searchParams, orderParams)
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
 
 	var outputShops []*pb.Shop
 	var latLonList []string
+	fmtX := message.NewPrinter(language.Japanese)
 
 	for _, v := range *shops {
 		inCurrentSales := true
@@ -52,10 +68,15 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		}
 		latLonList = append(latLonList, latLon)
 
+		// 距離
+		distance := fmtX.Sprintf("%dm", int(v.Distance))
+
 		outputShops = append(outputShops, &pb.Shop{
 			ID:                         v.ID,
 			EventID:                    v.EventID,
-			CategoryID:                 v.CategoryID,
+			Year:                       v.Year,
+			CategoryID:                 pb.CategoryType(v.CategoryID),
+			CategoryName:               v.CategoryName,
 			No:                         v.No,
 			ShopName:                   v.ShopName,
 			MenuName:                   v.MenuName,
@@ -79,6 +100,7 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			IsIrregularHoliday:         v.IsIrregularHoliday,
 			Latitude:                   latitude,
 			Longitude:                  longitude,
+			Distance:                   distance,
 			WeekNumber:                 v.WeekNumber,
 			DayOfWeek:                  int32(v.DayOfWeek),
 			StartTime:                  v.StartTime,
