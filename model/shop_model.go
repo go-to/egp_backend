@@ -216,6 +216,7 @@ func (m *ShopModel) Find(t *time.Time, s []int32, o []int32) (*ShopsResult, erro
 	}
 
 	// クエリ実行
+	shopsResult = nil
 	res := query.Scan(&shopsResult)
 	if res.Error != nil {
 		return nil, res.Error
