@@ -1,1 +1,1 @@
-DELETE FROM shops_beer_types_link;
+DELETE FROM egp.shops_beer_types_link;

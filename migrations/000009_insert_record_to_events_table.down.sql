@@ -1,1 +1,1 @@
-DELETE FROM events;
+DELETE FROM egp.events;

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS shops_location;
+DROP TABLE IF EXISTS egp.shops_location;

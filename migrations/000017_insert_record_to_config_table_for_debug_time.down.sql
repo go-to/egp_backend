@@ -1,1 +1,1 @@
-DELETE FROM config;
+DELETE FROM egp.config;

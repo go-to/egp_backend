@@ -1,16 +1,22 @@
-CREATE TABLE IF NOT EXISTS shops_time
+CREATE TABLE IF NOT EXISTS egp.shops_time
 (
-    id          INT AUTO_INCREMENT COMMENT 'ID'
-        PRIMARY KEY,
-    shop_id     INT                                 NOT NULL COMMENT '店舗ID',
-    week_number TINYINT(1)                          NOT NULL COMMENT '週番号',
-    day_of_week TINYINT(1)                          NOT NULL COMMENT '曜日',
-    start_time  TIME                                NOT NULL COMMENT '営業開始時間',
-    end_time    TIME                                NOT NULL COMMENT '営業終了時間',
-    is_holiday  TINYINT(1)                          NOT NULL COMMENT '定休日フラグ',
+    id          SERIAL PRIMARY KEY,
+    shop_id     INT                                 NOT NULL,
+    week_number INT                                 NOT NULL,
+    day_of_week INT                                 NOT NULL,
+    start_time  TIME                                NOT NULL,
+    end_time    TIME                                NOT NULL,
+    is_holiday  BOOLEAN                             NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL,
     CONSTRAINT shops_time_shops_id_fk
-        FOREIGN KEY (shop_id) REFERENCES shops (id)
-)
-    COMMENT '店舗営業時間';
+        FOREIGN KEY (shop_id) REFERENCES egp.shops (id)
+);
+COMMENT ON TABLE egp.shops_time IS '店舗営業時間';
+COMMENT ON COLUMN egp.shops_time.id IS 'ID';
+COMMENT ON COLUMN egp.shops_time.shop_id IS '店舗ID';
+COMMENT ON COLUMN egp.shops_time.week_number IS '週番号';
+COMMENT ON COLUMN egp.shops_time.day_of_week IS '曜日';
+COMMENT ON COLUMN egp.shops_time.start_time IS '営業開始時間';
+COMMENT ON COLUMN egp.shops_time.end_time IS '営業終了時間';
+COMMENT ON COLUMN egp.shops_time.is_holiday IS '定休日フラグ';

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS beer_types;
+DROP TABLE IF EXISTS egp.beer_types;

@@ -1,10 +1,10 @@
-CREATE TABLE IF NOT EXISTS categories
+CREATE TABLE IF NOT EXISTS egp.categories
 (
-    id         INT AUTO_INCREMENT COMMENT 'ID'
-        PRIMARY KEY,
-    name       VARCHAR(255)                        NOT NULL COMMENT 'カテゴリ名',
+    id         SERIAL PRIMARY KEY,
+    name       VARCHAR(255)                        NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL
-)
-    COMMENT 'カテゴリ';
-
+);
+COMMENT ON TABLE egp.categories IS 'カテゴリ';
+COMMENT ON COLUMN egp.categories.id IS 'ID';
+COMMENT ON COLUMN egp.categories.name IS 'カテゴリ名';

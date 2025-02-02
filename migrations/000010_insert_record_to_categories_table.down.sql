@@ -1,1 +1,1 @@
-DELETE FROM categories;
+DELETE FROM egp.categories;

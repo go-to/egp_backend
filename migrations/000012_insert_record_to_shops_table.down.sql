@@ -1,1 +1,1 @@
-DELETE FROM shops;
+DELETE FROM egp.shops;
