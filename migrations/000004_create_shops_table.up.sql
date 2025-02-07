@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS egp.shops
     no                           INT                                 NOT NULL,
     shop_name                    VARCHAR(255)                        NOT NULL,
     menu_name                    VARCHAR(255)                        NOT NULL,
+    menu_image_url               VARCHAR(255)                        NOT NULL,
     phone                        VARCHAR(255)                        NOT NULL,
     address                      VARCHAR(255)                        NOT NULL,
     business_days                VARCHAR(255)                        NOT NULL,
@@ -38,6 +39,7 @@ COMMENT ON COLUMN egp.shops.category_id IS 'カテゴリID';
 COMMENT ON COLUMN egp.shops.no IS 'No.';
 COMMENT ON COLUMN egp.shops.shop_name IS '店舗名';
 COMMENT ON COLUMN egp.shops.menu_name IS 'メニュー名';
+COMMENT ON COLUMN egp.shops.menu_image_url IS 'メニュー画像URL';
 COMMENT ON COLUMN egp.shops.phone IS '電話番号';
 COMMENT ON COLUMN egp.shops.address IS '住所';
 COMMENT ON COLUMN egp.shops.business_days IS '営業日';
