@@ -61,6 +61,7 @@ type ShopDetail struct {
 	No                         int32
 	ShopName                   string
 	MenuName                   string
+	MenuImageUrl               string
 	Phone                      string
 	Address                    string
 	BusinessDays               string
@@ -140,6 +141,7 @@ func (m *ShopModel) Find(t *time.Time, s []int32, o []int32) (*ShopsResult, erro
 		shops.no,
 		shops.shop_name,
 		shops.menu_name,
+		shops.menu_image_url,
 		shops.phone,
 		shops.address,
 		shops.business_days,
