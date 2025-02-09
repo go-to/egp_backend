@@ -80,6 +80,7 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			No:                         v.No,
 			ShopName:                   v.ShopName,
 			MenuName:                   v.MenuName,
+			MenuImageUrl:               v.MenuImageUrl,
 			Phone:                      v.Phone,
 			Address:                    v.Address,
 			BusinessDays:               v.BusinessDays,
