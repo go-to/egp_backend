@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS egp.stamps_detail
     stamped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT stamps_shops_id_fk
+    CONSTRAINT stamps_detail_shops_id_fk
         FOREIGN KEY (shop_id) REFERENCES egp.shops (id)
 );
 COMMENT ON TABLE egp.stamps_detail IS 'スタンプ詳細';
