@@ -13,6 +13,7 @@ import (
 
 type IShopUsecase interface {
 	GetShops(in *input.ShopsInput) (*output.ShopsOutput, error)
+	AddShops(in *input.AddStampInput) (*output.AddStampOutput, error)
 }
 
 type ShopUsecase struct {
@@ -25,7 +26,7 @@ func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepo
 }
 
 func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
-
+	userId := in.ShopsRequest.GetUserId()
 	searchTypes := in.ShopsRequest.GetSearchTypes()
 	var searchParams []int32
 	var orderParams []int32
@@ -44,7 +45,7 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		return &output.ShopsOutput{}, err
 	}
 
-	shops, err := u.shop.GetShops(&now, searchParams, orderParams)
+	shops, err := u.shop.GetShops(&now, userId, searchParams, orderParams)
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
@@ -70,6 +71,11 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 
 		// 距離
 		distance := fmtX.Sprintf("%dm", int(v.Distance))
+
+		isStamped := false
+		if v.NumberOfTimes > 0 {
+			isStamped = true
+		}
 
 		outputShops = append(outputShops, &pb.Shop{
 			ID:                         v.ID,
@@ -108,12 +114,33 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			EndTime:                    v.EndTime,
 			IsHoliday:                  v.IsHoliday,
 			InCurrentSales:             inCurrentSales,
+			NumberOfTimes:              v.NumberOfTimes,
+			IsStamped:                  isStamped,
 		})
 	}
 
 	return &output.ShopsOutput{
 		ShopsResponse: pb.ShopsResponse{
 			Shops: outputShops,
+		},
+	}, nil
+}
+
+func (u *ShopUsecase) AddStamp(in *input.AddStampInput) (*output.AddStampOutput, error) {
+	userId := in.AddStampRequest.GetUserId()
+	shopId := in.AddStampRequest.GetShopId()
+
+	fmt.Println(userId, shopId)
+
+	now, err := u.config.GetTime()
+	if err != nil {
+		return &output.AddStampOutput{}, err
+	}
+	fmt.Println(now)
+
+	return &output.AddStampOutput{
+		AddStampResponse: pb.AddStampResponse{
+			NumberOfTimes: 1,
 		},
 	}, nil
 }
