@@ -17,12 +17,17 @@ type IShopUsecase interface {
 }
 
 type ShopUsecase struct {
-	config repository.ConfigRepository
-	shop   repository.ShopRepository
+	config repository.IConfigRepository
+	shop   repository.IShopRepository
+	stamp  repository.IStampRepository
 }
 
-func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepository) *ShopUsecase {
-	return &ShopUsecase{config: config, shop: shop}
+func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepository, stamp repository.StampRepository) *ShopUsecase {
+	return &ShopUsecase{
+		config: &config,
+		shop:   &shop,
+		stamp:  &stamp,
+	}
 }
 
 func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
@@ -130,17 +135,19 @@ func (u *ShopUsecase) AddStamp(in *input.AddStampInput) (*output.AddStampOutput,
 	userId := in.AddStampRequest.GetUserId()
 	shopId := in.AddStampRequest.GetShopId()
 
-	fmt.Println(userId, shopId)
-
 	now, err := u.config.GetTime()
 	if err != nil {
 		return &output.AddStampOutput{}, err
 	}
-	fmt.Println(now)
+
+	stampNum, err := u.stamp.AddStamp(&now, userId, shopId)
+	if err != nil {
+		return &output.AddStampOutput{}, err
+	}
 
 	return &output.AddStampOutput{
 		AddStampResponse: pb.AddStampResponse{
-			NumberOfTimes: 1,
+			NumberOfTimes: stampNum,
 		},
 	}, nil
 }
