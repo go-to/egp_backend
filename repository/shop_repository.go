@@ -10,11 +10,11 @@ type IShopRepository interface {
 }
 
 type ShopRepository struct {
-	model model.ShopModel
+	model model.IShopModel
 }
 
 func NewShopRepository(m model.ShopModel) *ShopRepository {
-	return &ShopRepository{model: m}
+	return &ShopRepository{model: &m}
 }
 
 func (r *ShopRepository) GetShops(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*model.ShopsResult, error) {

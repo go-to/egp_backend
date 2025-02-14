@@ -10,11 +10,11 @@ type IConfigRepository interface {
 }
 
 type ConfigRepository struct {
-	model model.ConfigModel
+	model model.IConfigModel
 }
 
 func NewConfigRepository(m model.ConfigModel) *ConfigRepository {
-	return &ConfigRepository{m}
+	return &ConfigRepository{&m}
 }
 
 func (r *ConfigRepository) GetTime() (time.Time, error) {
