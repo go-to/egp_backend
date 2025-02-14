@@ -89,6 +89,7 @@ type ShopDetail struct {
 	EndTime                    string
 	IsHoliday                  bool
 	InCurrentSales             bool
+	NumberOfTimes              int32
 }
 
 type ShopsResult []ShopDetail
@@ -108,7 +109,7 @@ func (ShopsTime) TableName() string {
 }
 
 type IShopModel interface {
-	Find(t *time.Time, s []int32, o []int32) (*ShopsResult, error)
+	Find(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
 }
 
 const (
@@ -127,7 +128,7 @@ func NewShopModel(db DB) *ShopModel {
 	return &ShopModel{db: db}
 }
 
-func (m *ShopModel) Find(t *time.Time, s []int32, o []int32) (*ShopsResult, error) {
+func (m *ShopModel) Find(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
 	lat := 35.64531919787909
 	lng := 139.7223368970176
 	stDistance := fmt.Sprintf("ST_Distance(shops_location.location, 'POINT(%f %f)', false)", lat, lng)
@@ -188,16 +189,17 @@ func (m *ShopModel) Find(t *time.Time, s []int32, o []int32) (*ShopsResult, erro
 			WHEN shops_time_day.is_holiday IS NOT NULL THEN shops_time_day.is_holiday 
 			WHEN shops_time_night.is_holiday IS NOT NULL THEN shops_time_night.is_holiday
 			ELSE NULL
-		END AS is_holiday
+		END AS is_holiday,
+		stamps.number_of_times
 	`
 
 	// 検索条件で指定する週番号、曜日、時刻の情報を取得
-	todayWeekNum := util.GetWeekNumber(t)
-	todayDayOfWeek := util.GetWeekDay(t)
-	tomorrow := t.AddDate(0, 0, 1)
+	todayWeekNum := util.GetWeekNumber(time)
+	todayDayOfWeek := util.GetWeekDay(time)
+	tomorrow := time.AddDate(0, 0, 1)
 	tomorrowWeekNum := util.GetWeekNumber(&tomorrow)
 	tomorrowDayOfWeek := util.GetWeekDay(&tomorrow)
-	nowTime := util.GetTime(t)
+	nowTime := util.GetTime(time)
 	shopsTimeTodayCondition := "shops_time_day.week_number = ? AND shops_time_day.day_of_week = ? AND shops_time_day.is_holiday = false AND shops_time_day.start_time <= ? AND shops_time_day.end_time >= ?"
 	shopsTimeTomorrowCondition := "shops_time_night.week_number = ? AND shops_time_night.day_of_week = ? AND shops_time_night.is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND shops_time_night.start_time <= ? AND shops_time_night.end_time >= ?"
 
@@ -211,30 +213,31 @@ func (m *ShopModel) Find(t *time.Time, s []int32, o []int32) (*ShopsResult, erro
 			todayWeekNum, todayDayOfWeek, nowTime, nowTime).
 		Joins("LEFT JOIN shops_time AS shops_time_night ON shops.id = shops_time_night.shop_id AND "+shopsTimeTomorrowCondition+"",
 			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
+		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ?", userId).
 		Order("shops.no ASC")
 
 	/* 検索条件の指定があれば、検索条件を追加 */
 	// 営業中の店舗で絞り込む
-	if slices.Contains(s, SearchTypeInCurrentSales) {
+	if slices.Contains(searchParams, SearchTypeInCurrentSales) {
 		query = query.Where("("+shopsTimeTodayCondition+") OR ("+shopsTimeTomorrowCondition+")",
 			todayWeekNum, todayDayOfWeek, nowTime, nowTime,
 			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime)
 	}
 	// スタンプ未獲得の店舗で絞り込む
-	if slices.Contains(s, SearchTypeNotYet) {
+	if slices.Contains(searchParams, SearchTypeNotYet) {
 		// TODO スタンプ機能を実装後に追加
 		query = query.Where("1 = 1")
 	}
 	// 不定休の店舗で絞り込む
-	if slices.Contains(s, SearchTypeIrregularHoliday) {
+	if slices.Contains(searchParams, SearchTypeIrregularHoliday) {
 		query = query.Where("shops.is_irregular_holiday = ?", true)
 	}
 	// 予約が必要な店舗で絞り込む
-	if slices.Contains(s, SearchTypeNeedsReservation) {
+	if slices.Contains(searchParams, SearchTypeNeedsReservation) {
 		query = query.Where("shops.normalized_needs_reservation = ?", true)
 	}
 	// ビールカクテルがある店舗で絞り込む
-	if slices.Contains(s, SearchTypeBeerCocktail) {
+	if slices.Contains(searchParams, SearchTypeBeerCocktail) {
 		query = query.Where("shops.category_id = ?", CATEGORY_BEER_COCKTAIL)
 	}
 

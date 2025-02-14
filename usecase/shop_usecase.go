@@ -13,19 +13,25 @@ import (
 
 type IShopUsecase interface {
 	GetShops(in *input.ShopsInput) (*output.ShopsOutput, error)
+	AddShops(in *input.AddStampInput) (*output.AddStampOutput, error)
 }
 
 type ShopUsecase struct {
-	config repository.ConfigRepository
-	shop   repository.ShopRepository
+	config repository.IConfigRepository
+	shop   repository.IShopRepository
+	stamp  repository.IStampRepository
 }
 
-func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepository) *ShopUsecase {
-	return &ShopUsecase{config: config, shop: shop}
+func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepository, stamp repository.StampRepository) *ShopUsecase {
+	return &ShopUsecase{
+		config: &config,
+		shop:   &shop,
+		stamp:  &stamp,
+	}
 }
 
 func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
-
+	userId := in.ShopsRequest.GetUserId()
 	searchTypes := in.ShopsRequest.GetSearchTypes()
 	var searchParams []int32
 	var orderParams []int32
@@ -44,7 +50,7 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		return &output.ShopsOutput{}, err
 	}
 
-	shops, err := u.shop.GetShops(&now, searchParams, orderParams)
+	shops, err := u.shop.GetShops(&now, userId, searchParams, orderParams)
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
@@ -70,6 +76,11 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 
 		// 距離
 		distance := fmtX.Sprintf("%dm", int(v.Distance))
+
+		isStamped := false
+		if v.NumberOfTimes > 0 {
+			isStamped = true
+		}
 
 		outputShops = append(outputShops, &pb.Shop{
 			ID:                         v.ID,
@@ -108,12 +119,35 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			EndTime:                    v.EndTime,
 			IsHoliday:                  v.IsHoliday,
 			InCurrentSales:             inCurrentSales,
+			NumberOfTimes:              v.NumberOfTimes,
+			IsStamped:                  isStamped,
 		})
 	}
 
 	return &output.ShopsOutput{
 		ShopsResponse: pb.ShopsResponse{
 			Shops: outputShops,
+		},
+	}, nil
+}
+
+func (u *ShopUsecase) AddStamp(in *input.AddStampInput) (*output.AddStampOutput, error) {
+	userId := in.AddStampRequest.GetUserId()
+	shopId := in.AddStampRequest.GetShopId()
+
+	now, err := u.config.GetTime()
+	if err != nil {
+		return &output.AddStampOutput{}, err
+	}
+
+	stampNum, err := u.stamp.AddStamp(&now, userId, shopId)
+	if err != nil {
+		return &output.AddStampOutput{}, err
+	}
+
+	return &output.AddStampOutput{
+		AddStampResponse: pb.AddStampResponse{
+			NumberOfTimes: stampNum,
 		},
 	}, nil
 }
