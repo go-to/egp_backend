@@ -7,6 +7,7 @@ import (
 
 type IStampRepository interface {
 	AddStamp(time *time.Time, userId string, shopId int64) (int32, error)
+	DeleteStamp(userId string, shopId int64) (int32, error)
 }
 
 type StampRepository struct {
@@ -19,4 +20,8 @@ func NewStampRepository(m model.StampModel) *StampRepository {
 
 func (r *StampRepository) AddStamp(time *time.Time, userId string, shopId int64) (int32, error) {
 	return r.model.AddStamp(time, userId, shopId)
+}
+
+func (r *StampRepository) DeleteStamp(userId string, shopId int64) (int32, error) {
+	return r.model.DeleteStamp(userId, shopId)
 }

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/go-to/egp_backend/repository"
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_backend/usecase/output"
@@ -9,6 +10,7 @@ import (
 
 type IStampUsecase interface {
 	AddStamp(in *input.AddStampInput) (*output.AddStampOutput, error)
+	DeleteStamp(in *input.DeleteStampInput) (*output.DeleteStampOutput, error)
 }
 
 type StampUsecase struct {
@@ -39,6 +41,23 @@ func (u *StampUsecase) AddStamp(in *input.AddStampInput) (*output.AddStampOutput
 
 	return &output.AddStampOutput{
 		AddStampResponse: pb.AddStampResponse{
+			NumberOfTimes: stampNum,
+		},
+	}, nil
+}
+
+func (u *StampUsecase) DeleteStamp(in *input.DeleteStampInput) (*output.DeleteStampOutput, error) {
+	userId := in.DeleteStampRequest.GetUserId()
+	shopId := in.DeleteStampRequest.GetShopId()
+	fmt.Println(userId, shopId)
+
+	stampNum, err := u.stamp.DeleteStamp(userId, shopId)
+	if err != nil {
+		return &output.DeleteStampOutput{}, err
+	}
+
+	return &output.DeleteStampOutput{
+		DeleteStampResponse: pb.DeleteStampResponse{
 			NumberOfTimes: stampNum,
 		},
 	}, nil

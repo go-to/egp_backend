@@ -80,3 +80,16 @@ func (s *Server) AddStamp(ctx context.Context, req *pb.AddStampRequest) (*pb.Add
 
 	return &out.AddStampResponse, nil
 }
+
+func (s *Server) DeleteStamp(ctx context.Context, req *pb.DeleteStampRequest) (*pb.DeleteStampResponse, error) {
+	in := input.DeleteStampInput{
+		DeleteStampRequest: req,
+	}
+
+	out, err := s.Usecase.Stamp.DeleteStamp(&in)
+	if err != nil {
+		return nil, err
+	}
+
+	return &out.DeleteStampResponse, nil
+}
