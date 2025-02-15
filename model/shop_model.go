@@ -225,8 +225,7 @@ func (m *ShopModel) Find(time *time.Time, userId string, searchParams []int32, o
 	}
 	// スタンプ未獲得の店舗で絞り込む
 	if slices.Contains(searchParams, SearchTypeNotYet) {
-		// TODO スタンプ機能を実装後に追加
-		query = query.Where("1 = 1")
+		query = query.Where("stamps.number_of_times IS NULL")
 	}
 	// 不定休の店舗で絞り込む
 	if slices.Contains(searchParams, SearchTypeIrregularHoliday) {
