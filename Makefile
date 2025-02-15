@@ -28,9 +28,12 @@ run:
 grpcurl-shops:
 	grpcurl -plaintext localhost:8080 egp.EgpService.GetShops
 clean-branch:
-	git switch main && git branch | xargs git branch -d
+	git switch main
+	git branch | xargs git branch -d
+	git pull
 update-gomod:
 	go get -u
+	go mod tidy
 # e.x.) make debug-time time='2025-03-11 19:00:00'
 debug-time:
 	mysql -u${DB_USER} -p${DB_PASS} -P${DB_PORT} -h${DB_HOST} ${DB_NAME} -e "UPDATE config SET conf_value = '${time}' WHERE conf_name = 'debug_time';"
