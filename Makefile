@@ -28,7 +28,9 @@ run:
 grpcurl-shops:
 	grpcurl -plaintext localhost:8080 egp.EgpService.GetShops
 clean-branch:
-	git switch main && git branch | xargs git branch -d
+	git switch main
+	git branch | xargs git branch -d
+	git pull
 update-gomod:
 	go get -u
 	go mod tidy
