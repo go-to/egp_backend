@@ -7,16 +7,14 @@ import (
 )
 
 type Stamp struct {
-	//gorm.Model
-	ID            int64 `gorm:"primary_key"`
+	gorm.Model
 	UserID        string
 	ShopID        int64
 	NumberOfTimes int32
 }
 
 type StampDetail struct {
-	//gorm.Model
-	ID        int64 `gorm:"primary_key"`
+	gorm.Model
 	UserID    string
 	ShopID    int64
 	StampedAt time.Time
@@ -32,6 +30,7 @@ func (StampDetail) TableName() string {
 
 type IStampModel interface {
 	AddStamp(time *time.Time, userId string, shopId int64) (int32, error)
+	DeleteStamp(userId string, shopId int64) (int32, error)
 }
 
 type StampModel struct {
@@ -63,8 +62,7 @@ func (m *StampModel) AddStamp(time *time.Time, userId string, shopId int64) (int
 
 		// stampsテーブルの既存レコードを取得
 		stamp := &Stamp{}
-		if err := tx.Model(&Stamp{}).
-			Where("user_id = ? and shop_id = ?", userId, shopId).
+		if err := tx.Where("user_id = ? and shop_id = ?", userId, shopId).
 			First(stamp).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
@@ -75,6 +73,64 @@ func (m *StampModel) AddStamp(time *time.Time, userId string, shopId int64) (int
 		stamp.NumberOfTimes = int32(recordNum)
 		if err := tx.Save(stamp).Error; err != nil {
 			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return int32(recordNum), nil
+}
+
+func (m *StampModel) DeleteStamp(userId string, shopId int64) (int32, error) {
+	recordNum := int64(0)
+	err := m.db.Conn.Transaction(func(tx *gorm.DB) error {
+		// stamps_detailテーブルから最新のレコードを1件取得
+		stampDetail := &StampDetail{}
+		err := tx.Where("user_id = ? and shop_id = ?", userId, shopId).
+			Order("stamped_at desc").
+			First(stampDetail).Error
+		// 削除対象のレコードが存在しない場合は正常終了
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		} else if err != nil {
+			return err
+		}
+
+		// stamps_detailテーブルからレコードを削除
+		if err := tx.Where("id = ?", stampDetail.ID).
+			Delete(&StampDetail{}).Error; err != nil {
+			return err
+		}
+
+		// stamps_detailテーブルのレコード数の情報を取得
+		if err := tx.Model(&StampDetail{}).
+			Where("user_id = ? and shop_id = ?", userId, shopId).
+			Count(&recordNum).Error; err != nil {
+			return err
+		}
+
+		// stampsテーブルのレコードを更新
+		stamp := &Stamp{}
+		if err := tx.Where("user_id = ? and shop_id = ?", userId, shopId).
+			First(stamp).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		// stampsテーブルのレコードを更新
+		stamp.UserID = userId
+		stamp.ShopID = shopId
+		stamp.NumberOfTimes = int32(recordNum)
+		if err := tx.Save(stamp).Error; err != nil {
+			return err
+		}
+
+		// stamps_detailテーブルのレコードが0件の場合はstampsテーブルのレコードを削除
+		if recordNum == 0 {
+			tx.Where("user_id = ? and shop_id = ?", userId, shopId).
+				Delete(&Stamp{})
 		}
 
 		return nil

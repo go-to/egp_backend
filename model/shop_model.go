@@ -213,7 +213,7 @@ func (m *ShopModel) Find(time *time.Time, userId string, searchParams []int32, o
 			todayWeekNum, todayDayOfWeek, nowTime, nowTime).
 		Joins("LEFT JOIN shops_time AS shops_time_night ON shops.id = shops_time_night.shop_id AND "+shopsTimeTomorrowCondition+"",
 			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
-		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ?", userId).
+		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ? AND stamps.deleted_at IS NULL", userId).
 		Order("shops.no ASC")
 
 	/* 検索条件の指定があれば、検索条件を追加 */

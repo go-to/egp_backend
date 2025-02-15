@@ -20,7 +20,8 @@ type Server struct {
 }
 
 type Usecase struct {
-	Shop usecase.ShopUsecase
+	Shop  usecase.IShopUsecase
+	Stamp usecase.IStampUsecase
 }
 
 func New(port int, u Usecase) {
@@ -72,10 +73,23 @@ func (s *Server) AddStamp(ctx context.Context, req *pb.AddStampRequest) (*pb.Add
 		AddStampRequest: req,
 	}
 
-	out, err := s.Usecase.Shop.AddStamp(&in)
+	out, err := s.Usecase.Stamp.AddStamp(&in)
 	if err != nil {
 		return nil, err
 	}
 
 	return &out.AddStampResponse, nil
+}
+
+func (s *Server) DeleteStamp(ctx context.Context, req *pb.DeleteStampRequest) (*pb.DeleteStampResponse, error) {
+	in := input.DeleteStampInput{
+		DeleteStampRequest: req,
+	}
+
+	out, err := s.Usecase.Stamp.DeleteStamp(&in)
+	if err != nil {
+		return nil, err
+	}
+
+	return &out.DeleteStampResponse, nil
 }

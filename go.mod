@@ -3,7 +3,7 @@ module github.com/go-to/egp_backend
 go 1.23.4
 
 require (
-	github.com/go-to/egp_protobuf/pb v0.0.0-20250213094119-de17906e229c
+	github.com/go-to/egp_protobuf/pb v0.0.0-20250214095319-24b725e7adf7
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/text v0.22.0
 	google.golang.org/grpc v1.70.0

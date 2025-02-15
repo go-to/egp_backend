@@ -48,6 +48,9 @@ func main() {
 	shopUsecase := usecase.NewShopUseCase(
 		*configRepository,
 		*shopRepository,
+	)
+	stampUsecase := usecase.NewStampUseCase(
+		*configRepository,
 		*stampRepository,
 	)
 
@@ -58,7 +61,8 @@ func main() {
 	}
 
 	u := router.Usecase{
-		Shop: *shopUsecase,
+		Shop:  usecase.IShopUsecase(shopUsecase),
+		Stamp: usecase.IStampUsecase(stampUsecase),
 	}
 	router.New(apiPort, u)
 }
