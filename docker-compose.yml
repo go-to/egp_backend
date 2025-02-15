@@ -21,6 +21,8 @@ services:
       - "5432:5432"
   api:
     container_name: api
+    environment:
+      TZ: Asia/Tokyo
     build: .
     volumes:
       - ./:/go/src/app
