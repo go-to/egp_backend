@@ -68,9 +68,9 @@ func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsR
 	return &out.ShopsResponse, nil
 }
 
-func (s *Server) AddStamp(ctx context.Context, req *pb.AddStampRequest) (*pb.AddStampResponse, error) {
-	in := input.AddStampInput{
-		AddStampRequest: req,
+func (s *Server) AddStamp(ctx context.Context, req *pb.StampRequest) (*pb.StampResponse, error) {
+	in := input.StampInput{
+		StampRequest: req,
 	}
 
 	out, err := s.Usecase.Stamp.AddStamp(&in)
@@ -78,12 +78,12 @@ func (s *Server) AddStamp(ctx context.Context, req *pb.AddStampRequest) (*pb.Add
 		return nil, err
 	}
 
-	return &out.AddStampResponse, nil
+	return &out.StampResponse, nil
 }
 
-func (s *Server) DeleteStamp(ctx context.Context, req *pb.DeleteStampRequest) (*pb.DeleteStampResponse, error) {
-	in := input.DeleteStampInput{
-		DeleteStampRequest: req,
+func (s *Server) DeleteStamp(ctx context.Context, req *pb.StampRequest) (*pb.StampResponse, error) {
+	in := input.StampInput{
+		StampRequest: req,
 	}
 
 	out, err := s.Usecase.Stamp.DeleteStamp(&in)
@@ -91,5 +91,5 @@ func (s *Server) DeleteStamp(ctx context.Context, req *pb.DeleteStampRequest) (*
 		return nil, err
 	}
 
-	return &out.DeleteStampResponse, nil
+	return &out.StampResponse, nil
 }

@@ -9,8 +9,8 @@ import (
 )
 
 type IStampUsecase interface {
-	AddStamp(in *input.AddStampInput) (*output.AddStampOutput, error)
-	DeleteStamp(in *input.DeleteStampInput) (*output.DeleteStampOutput, error)
+	AddStamp(in *input.StampInput) (*output.StampOutput, error)
+	DeleteStamp(in *input.StampInput) (*output.StampOutput, error)
 }
 
 type StampUsecase struct {
@@ -25,39 +25,39 @@ func NewStampUseCase(config repository.ConfigRepository, stamp repository.StampR
 	}
 }
 
-func (u *StampUsecase) AddStamp(in *input.AddStampInput) (*output.AddStampOutput, error) {
-	userId := in.AddStampRequest.GetUserId()
-	shopId := in.AddStampRequest.GetShopId()
+func (u *StampUsecase) AddStamp(in *input.StampInput) (*output.StampOutput, error) {
+	userId := in.StampRequest.GetUserId()
+	shopId := in.StampRequest.GetShopId()
 
 	now, err := u.config.GetTime()
 	if err != nil {
-		return &output.AddStampOutput{}, err
+		return &output.StampOutput{}, err
 	}
 
 	stampNum, err := u.stamp.AddStamp(&now, userId, shopId)
 	if err != nil {
-		return &output.AddStampOutput{}, err
+		return &output.StampOutput{}, err
 	}
 
-	return &output.AddStampOutput{
-		AddStampResponse: pb.AddStampResponse{
+	return &output.StampOutput{
+		StampResponse: pb.StampResponse{
 			NumberOfTimes: stampNum,
 		},
 	}, nil
 }
 
-func (u *StampUsecase) DeleteStamp(in *input.DeleteStampInput) (*output.DeleteStampOutput, error) {
-	userId := in.DeleteStampRequest.GetUserId()
-	shopId := in.DeleteStampRequest.GetShopId()
+func (u *StampUsecase) DeleteStamp(in *input.StampInput) (*output.StampOutput, error) {
+	userId := in.StampRequest.GetUserId()
+	shopId := in.StampRequest.GetShopId()
 	fmt.Println(userId, shopId)
 
 	stampNum, err := u.stamp.DeleteStamp(userId, shopId)
 	if err != nil {
-		return &output.DeleteStampOutput{}, err
+		return &output.StampOutput{}, err
 	}
 
-	return &output.DeleteStampOutput{
-		DeleteStampResponse: pb.DeleteStampResponse{
+	return &output.StampOutput{
+		StampResponse: pb.StampResponse{
 			NumberOfTimes: stampNum,
 		},
 	}, nil
