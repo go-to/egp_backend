@@ -32,6 +32,9 @@ clean-branch:
 	git branch | grep -v "main" | xargs git branch -d
 	git pull
 update-gomod:
+	go clean -cache -modcache -i -r
+	go mod download
+	go get -u github.com/go-to/egp_protobuf/pb@latest
 	go get -u
 	go mod tidy
 # e.x.) make debug-time time='2025-03-11 19:00:00'
