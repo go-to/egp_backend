@@ -68,6 +68,19 @@ func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsR
 	return &out.ShopsResponse, nil
 }
 
+func (s *Server) GetShop(ctx context.Context, req *pb.ShopRequest) (*pb.ShopResponse, error) {
+	in := input.ShopInput{
+		ShopRequest: req,
+	}
+
+	out, err := s.Usecase.Shop.GetShop(&in)
+	if err != nil {
+		return nil, err
+	}
+
+	return &out.ShopResponse, nil
+}
+
 func (s *Server) AddStamp(ctx context.Context, req *pb.StampRequest) (*pb.StampResponse, error) {
 	in := input.StampInput{
 		StampRequest: req,

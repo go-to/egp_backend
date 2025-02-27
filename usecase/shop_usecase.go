@@ -13,6 +13,7 @@ import (
 
 type IShopUsecase interface {
 	GetShops(in *input.ShopsInput) (*output.ShopsOutput, error)
+	GetShop(in *input.ShopInput) (*output.ShopOutput, error)
 }
 
 type ShopUsecase struct {
@@ -124,6 +125,85 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	return &output.ShopsOutput{
 		ShopsResponse: pb.ShopsResponse{
 			Shops: outputShops,
+		},
+	}, nil
+}
+
+func (u *ShopUsecase) GetShop(in *input.ShopInput) (*output.ShopOutput, error) {
+	userId := in.ShopRequest.GetUserId()
+	shopId := in.ShopRequest.GetShopId()
+
+	now, err := u.config.GetTime()
+	if err != nil {
+		return &output.ShopOutput{}, err
+	}
+
+	shop, err := u.shop.GetShop(&now, userId, shopId)
+	if err != nil {
+		return &output.ShopOutput{}, err
+	}
+
+	outputShop := &pb.Shop{}
+	if &shop != nil {
+		inCurrentSales := true
+		if len(shop.StartTime) == 0 || len(shop.EndTime) == 0 {
+			inCurrentSales = false
+		}
+
+		// 距離
+		fmtX := message.NewPrinter(language.Japanese)
+		distance := fmtX.Sprintf("%dm", int(shop.Distance))
+
+		isStamped := false
+		if shop.NumberOfTimes > 0 {
+			isStamped = true
+		}
+
+		outputShop = &pb.Shop{
+			ID:                         shop.ID,
+			EventID:                    shop.EventID,
+			Year:                       shop.Year,
+			CategoryID:                 pb.CategoryType(shop.CategoryID),
+			CategoryName:               shop.CategoryName,
+			No:                         shop.No,
+			ShopName:                   shop.ShopName,
+			MenuName:                   shop.MenuName,
+			MenuImageUrl:               shop.MenuImageUrl,
+			Phone:                      shop.Phone,
+			Address:                    shop.Address,
+			BusinessDays:               shop.BusinessDays,
+			RegularHoliday:             shop.RegularHoliday,
+			BusinessHours:              shop.BusinessHours,
+			ChargePrice:                shop.ChargePrice,
+			NormalizedChargePrice:      shop.NormalizedChargePrice,
+			SinglePrice:                shop.SinglePrice,
+			NormalizedSinglePrice:      shop.NormalizedSinglePrice,
+			SetPrice:                   shop.SetPrice,
+			NormalizedSetPrice:         shop.NormalizedSetPrice,
+			BeerType:                   shop.BeerType,
+			NeedsReservation:           shop.NeedsReservation,
+			NormalizedNeedsReservation: shop.NormalizedNeedsReservation,
+			UseHachipay:                shop.UseHachipay,
+			NormalizedUseHachipay:      shop.NormalizedUseHachipay,
+			IsOpenHoliday:              shop.IsOpenHoliday,
+			IsIrregularHoliday:         shop.IsIrregularHoliday,
+			Latitude:                   shop.Latitude,
+			Longitude:                  shop.Longitude,
+			Distance:                   distance,
+			WeekNumber:                 shop.WeekNumber,
+			DayOfWeek:                  int32(shop.DayOfWeek),
+			StartTime:                  shop.StartTime,
+			EndTime:                    shop.EndTime,
+			IsHoliday:                  shop.IsHoliday,
+			InCurrentSales:             inCurrentSales,
+			NumberOfTimes:              shop.NumberOfTimes,
+			IsStamped:                  isStamped,
+		}
+	}
+
+	return &output.ShopOutput{
+		ShopResponse: pb.ShopResponse{
+			Shop: outputShop,
 		},
 	}, nil
 }

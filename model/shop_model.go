@@ -95,6 +95,7 @@ type ShopDetail struct {
 type ShopsResult []ShopDetail
 
 var shopsResult ShopsResult
+var shopResult ShopDetail
 
 func (Shop) TableName() string {
 	return "shops"
@@ -109,7 +110,8 @@ func (ShopsTime) TableName() string {
 }
 
 type IShopModel interface {
-	Find(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
+	FindShops(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
+	FindShop(time *time.Time, userId string, shopId int64) (*ShopDetail, error)
 }
 
 const (
@@ -128,7 +130,7 @@ func NewShopModel(db DB) *ShopModel {
 	return &ShopModel{db: db}
 }
 
-func (m *ShopModel) Find(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
+func (m *ShopModel) FindShops(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
 	lat := 35.64531919787909
 	lng := 139.7223368970176
 	stDistance := fmt.Sprintf("ST_Distance(shops_location.location, 'POINT(%f %f)', false)", lat, lng)
@@ -248,4 +250,101 @@ func (m *ShopModel) Find(time *time.Time, userId string, searchParams []int32, o
 	}
 
 	return &shopsResult, nil
+}
+
+func (m *ShopModel) FindShop(time *time.Time, userId string, shopId int64) (*ShopDetail, error) {
+	lat := 35.64531919787909
+	lng := 139.7223368970176
+	stDistance := fmt.Sprintf("ST_Distance(shops_location.location, 'POINT(%f %f)', false)", lat, lng)
+
+	fields := `
+		shops.id,
+		shops.event_id,
+		events.year,
+		shops.category_id,
+		categories.name AS category_name,
+		shops.no,
+		shops.shop_name,
+		shops.menu_name,
+		shops.menu_image_url,
+		shops.phone,
+		shops.address,
+		shops.business_days,
+		shops.regular_holiday,
+		shops.business_hours,
+		shops.charge_price,
+		shops.normalized_charge_price,
+		shops.single_price,
+		shops.normalized_single_price,
+		shops.set_price,
+		shops.normalized_set_price,
+		shops.beer_type,
+		shops.needs_reservation,
+		shops.normalized_needs_reservation,
+		shops.use_hachipay,
+		shops.normalized_use_hachipay,
+		shops.is_open_holiday,
+		shops.is_irregular_holiday,
+		shops_location.latitude,
+		shops_location.longitude,
+		shops_location.location,
+		` + stDistance + ` AS distance,
+		CASE
+			WHEN shops_time_day.week_number IS NOT NULL THEN shops_time_day.week_number 
+			WHEN shops_time_night.week_number IS NOT NULL THEN shops_time_night.week_number
+			ELSE NULL
+		END AS week_number,
+		CASE
+			WHEN shops_time_day.day_of_week IS NOT NULL THEN shops_time_day.day_of_week 
+			WHEN shops_time_night.day_of_week IS NOT NULL THEN shops_time_night.day_of_week
+			ELSE NULL
+		END AS day_of_week,
+		CASE
+			WHEN shops_time_day.start_time IS NOT NULL THEN shops_time_day.start_time 
+			WHEN shops_time_night.start_time IS NOT NULL THEN shops_time_night.start_time
+			ELSE NULL
+		END AS start_time,
+		CASE
+			WHEN shops_time_day.end_time IS NOT NULL THEN shops_time_day.end_time 
+			WHEN shops_time_night.end_time IS NOT NULL THEN shops_time_night.end_time
+			ELSE NULL
+		END AS end_time,
+		CASE
+			WHEN shops_time_day.is_holiday IS NOT NULL THEN shops_time_day.is_holiday 
+			WHEN shops_time_night.is_holiday IS NOT NULL THEN shops_time_night.is_holiday
+			ELSE NULL
+		END AS is_holiday,
+		stamps.number_of_times
+	`
+
+	// 検索条件で指定する週番号、曜日、時刻の情報を取得
+	todayWeekNum := util.GetWeekNumber(time)
+	todayDayOfWeek := util.GetWeekDay(time)
+	tomorrow := time.AddDate(0, 0, 1)
+	tomorrowWeekNum := util.GetWeekNumber(&tomorrow)
+	tomorrowDayOfWeek := util.GetWeekDay(&tomorrow)
+	nowTime := util.GetTime(time)
+	shopsTimeTodayCondition := "shops_time_day.week_number = ? AND shops_time_day.day_of_week = ? AND shops_time_day.is_holiday = false AND shops_time_day.start_time <= ? AND shops_time_day.end_time >= ?"
+	shopsTimeTomorrowCondition := "shops_time_night.week_number = ? AND shops_time_night.day_of_week = ? AND shops_time_night.is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND shops_time_night.start_time <= ? AND shops_time_night.end_time >= ?"
+
+	query := m.db.Conn.
+		Model(&Shop{}).
+		Select(fields).
+		Joins("INNER JOIN events ON shops.event_id = events.id").
+		Joins("INNER JOIN categories ON shops.category_id = categories.id").
+		Joins("INNER JOIN shops_location ON shops.id = shops_location.shop_id").
+		Joins("LEFT JOIN shops_time AS shops_time_day ON shops.id = shops_time_day.shop_id AND "+shopsTimeTodayCondition+"",
+			todayWeekNum, todayDayOfWeek, nowTime, nowTime).
+		Joins("LEFT JOIN shops_time AS shops_time_night ON shops.id = shops_time_night.shop_id AND "+shopsTimeTomorrowCondition+"",
+			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
+		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ? AND stamps.deleted_at IS NULL", userId).
+		Where("shops.id = ?", shopId)
+
+	shopResult = ShopDetail{}
+	res := query.Scan(&shopResult)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return &shopResult, nil
 }
