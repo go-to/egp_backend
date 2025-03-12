@@ -7,7 +7,10 @@ import (
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_protobuf/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 	"log"
 	"net"
 	"os"
@@ -55,7 +58,28 @@ func NewServer(u Usecase) *Server {
 	return &Server{Usecase: u}
 }
 
+func checkApiKey(ctx context.Context) error {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return status.Errorf(codes.InvalidArgument, "missing in request")
+	}
+
+	apiKey := md.Get("api-key")
+	if len(apiKey) == 0 || apiKey[0] != os.Getenv("API_KEY") {
+		return status.Errorf(codes.Unauthenticated, "invalid api key")
+	}
+	return nil
+}
+
 func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsResponse, error) {
+	if err := checkApiKey(ctx); err != nil {
+		return nil, err
+	}
+
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		fmt.Println(md.Get("api-key"))
+	}
+
 	in := input.ShopsInput{
 		ShopsRequest: req,
 	}
@@ -69,6 +93,10 @@ func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsR
 }
 
 func (s *Server) GetShop(ctx context.Context, req *pb.ShopRequest) (*pb.ShopResponse, error) {
+	if err := checkApiKey(ctx); err != nil {
+		return nil, err
+	}
+
 	in := input.ShopInput{
 		ShopRequest: req,
 	}
@@ -82,6 +110,10 @@ func (s *Server) GetShop(ctx context.Context, req *pb.ShopRequest) (*pb.ShopResp
 }
 
 func (s *Server) AddStamp(ctx context.Context, req *pb.StampRequest) (*pb.StampResponse, error) {
+	if err := checkApiKey(ctx); err != nil {
+		return nil, err
+	}
+
 	in := input.StampInput{
 		StampRequest: req,
 	}
@@ -95,6 +127,10 @@ func (s *Server) AddStamp(ctx context.Context, req *pb.StampRequest) (*pb.StampR
 }
 
 func (s *Server) DeleteStamp(ctx context.Context, req *pb.StampRequest) (*pb.StampResponse, error) {
+	if err := checkApiKey(ctx); err != nil {
+		return nil, err
+	}
+
 	in := input.StampInput{
 		StampRequest: req,
 	}
