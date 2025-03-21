@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"fmt"
 	"github.com/go-to/egp_backend/repository"
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_backend/usecase/output"
@@ -49,7 +48,6 @@ func (u *StampUsecase) AddStamp(in *input.StampInput) (*output.StampOutput, erro
 func (u *StampUsecase) DeleteStamp(in *input.StampInput) (*output.StampOutput, error) {
 	userId := in.StampRequest.GetUserId()
 	shopId := in.StampRequest.GetShopId()
-	fmt.Println(userId, shopId)
 
 	stampNum, err := u.stamp.DeleteStamp(userId, shopId)
 	if err != nil {
