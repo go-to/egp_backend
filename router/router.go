@@ -76,10 +76,6 @@ func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsR
 		return nil, err
 	}
 
-	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		fmt.Println(md.Get("api-key"))
-	}
-
 	in := input.ShopsInput{
 		ShopsRequest: req,
 	}
