@@ -5,6 +5,7 @@ go 1.23.4
 require (
 	github.com/go-to/egp_protobuf/pb v0.0.0-20250330002224-3e3827dfb7cd
 	github.com/joho/godotenv v1.5.1
+	github.com/ktnyt/go-moji v1.0.0
 	golang.org/x/text v0.23.0
 	google.golang.org/grpc v1.71.0
 	gorm.io/driver/postgres v1.5.11
