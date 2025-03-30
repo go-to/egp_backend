@@ -9,6 +9,7 @@ import (
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"slices"
+	"strings"
 )
 
 type IShopUsecase interface {
@@ -31,6 +32,7 @@ func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepo
 func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
 	userId := in.ShopsRequest.GetUserId()
 	searchTypes := in.ShopsRequest.GetSearchTypes()
+	keywords := in.ShopsRequest.GetKeyword()
 	var searchParams []int32
 	var orderParams []int32
 	for _, value := range searchTypes {
@@ -42,13 +44,15 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			searchParams = append(searchParams, pb.SearchType_value[key])
 		}
 	}
+	// 検索キーワードの整形
+	keywordParams := strings.Fields(keywords)
 
 	now, err := u.config.GetTime()
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
 
-	shops, err := u.shop.GetShops(&now, userId, searchParams, orderParams)
+	shops, err := u.shop.GetShops(&now, userId, keywordParams, searchParams, orderParams)
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}

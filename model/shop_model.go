@@ -110,7 +110,7 @@ func (ShopsTime) TableName() string {
 }
 
 type IShopModel interface {
-	FindShops(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
+	FindShops(time *time.Time, userId string, keywordList []string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
 	FindShop(time *time.Time, userId string, shopId int64) (*ShopDetail, error)
 }
 
@@ -130,7 +130,7 @@ func NewShopModel(db DB) *ShopModel {
 	return &ShopModel{db: db}
 }
 
-func (m *ShopModel) FindShops(time *time.Time, userId string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
+func (m *ShopModel) FindShops(time *time.Time, userId string, keywordParams []string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
 	lat := 35.64531919787909
 	lng := 139.7223368970176
 	stDistance := fmt.Sprintf("ST_Distance(shops_location.location, 'POINT(%f %f)', false)", lat, lng)
@@ -206,6 +206,7 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, searchParams []int
 	shopsTimeTomorrowCondition := "shops_time_night.week_number = ? AND shops_time_night.day_of_week = ? AND shops_time_night.is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND shops_time_night.start_time <= ? AND shops_time_night.end_time >= ?"
 
 	query := m.db.Conn.
+		Debug().
 		Model(&Shop{}).
 		Select(fields).
 		Joins("INNER JOIN events ON shops.event_id = events.id").
@@ -240,6 +241,15 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, searchParams []int
 	// ビールカクテルがある店舗で絞り込む
 	if slices.Contains(searchParams, SearchTypeBeerCocktail) {
 		query = query.Where("shops.category_id = ?", CATEGORY_BEER_COCKTAIL)
+	}
+	// キーワード検索
+	if len(keywordParams) > 0 {
+		keywordQuery := m.db.Conn.Or("")
+		for _, keyword := range keywordParams {
+			keywordQuery = keywordQuery.Or("sf_translate_case(shops.no) LIKE ? || sf_translate_case(?) || ? OR sf_translate_case(shops.shop_name) LIKE ? || sf_translate_case(?) || ? OR sf_translate_case(shops.menu_name) LIKE ? || sf_translate_case(?) || ?",
+				"%", keyword, "%", "%", keyword, "%", "%", keyword, "%")
+		}
+		query = query.Where(keywordQuery)
 	}
 
 	// クエリ実行
