@@ -206,7 +206,6 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, keywordParams []st
 	shopsTimeTomorrowCondition := "shops_time_night.week_number = ? AND shops_time_night.day_of_week = ? AND shops_time_night.is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND shops_time_night.start_time <= ? AND shops_time_night.end_time >= ?"
 
 	query := m.db.Conn.
-		Debug().
 		Model(&Shop{}).
 		Select(fields).
 		Joins("INNER JOIN events ON shops.event_id = events.id").
