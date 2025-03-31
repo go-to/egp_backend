@@ -217,7 +217,7 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, keywordParams []st
 		Joins("LEFT JOIN shops_time AS shops_time_night ON shops.id = shops_time_night.shop_id AND "+shopsTimeTomorrowCondition+"",
 			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
 		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ? AND stamps.deleted_at IS NULL", userId).
-		Order("shops.no ASC")
+		Order("CAST(shops.no AS INTEGER) ASC")
 
 	/* 検索条件の指定があれば、検索条件を追加 */
 	// 営業中の店舗で絞り込む
