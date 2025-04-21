@@ -13,6 +13,7 @@ import (
 )
 
 type IShopUsecase interface {
+	GetShopsTotal(in *input.ShopsTotalInput) (*output.ShopsTotalOutput, error)
 	GetShops(in *input.ShopsInput) (*output.ShopsOutput, error)
 	GetShop(in *input.ShopInput) (*output.ShopOutput, error)
 }
@@ -27,6 +28,28 @@ func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepo
 		config: &config,
 		shop:   &shop,
 	}
+}
+
+func (u *ShopUsecase) GetShopsTotal(in *input.ShopsTotalInput) (*output.ShopsTotalOutput, error) {
+	year := in.ShopsTotalRequest.GetYear()
+	if year == 0 {
+		now, err := u.config.GetTime()
+		if err != nil {
+			return &output.ShopsTotalOutput{}, err
+		}
+		year = int32(now.Year())
+	}
+
+	shopsTotal, err := u.shop.GetShopsTotal(year)
+	if err != nil {
+		return &output.ShopsTotalOutput{}, err
+	}
+
+	return &output.ShopsTotalOutput{
+		ShopsTotalResponse: pb.ShopsTotalResponse{
+			TotalNum: shopsTotal,
+		},
+	}, nil
 }
 
 func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
@@ -52,7 +75,12 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		return &output.ShopsOutput{}, err
 	}
 
-	shops, err := u.shop.GetShops(&now, userId, keywordParams, searchParams, orderParams)
+	year := in.ShopsRequest.GetYear()
+	if year == 0 {
+		year = int32(now.Year())
+	}
+
+	shops, err := u.shop.GetShops(&now, userId, year, keywordParams, searchParams, orderParams)
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
