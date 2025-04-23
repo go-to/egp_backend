@@ -71,6 +71,23 @@ func checkApiKey(ctx context.Context) error {
 	return nil
 }
 
+func (s *Server) GetShopsTotal(ctx context.Context, req *pb.ShopsTotalRequest) (*pb.ShopsTotalResponse, error) {
+	if err := checkApiKey(ctx); err != nil {
+		return nil, err
+	}
+
+	in := input.ShopsTotalInput{
+		ShopsTotalRequest: req,
+	}
+
+	out, err := s.Usecase.Shop.GetShopsTotal(&in)
+	if err != nil {
+		return nil, err
+	}
+
+	return &out.ShopsTotalResponse, nil
+}
+
 func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsResponse, error) {
 	if err := checkApiKey(ctx); err != nil {
 		return nil, err
