@@ -12,7 +12,12 @@ import (
 	"strings"
 )
 
+// TODO 見直し
+const defaultYear = int32(2025)
+
 type IShopUsecase interface {
+	getDefaultYear() (int32, error)
+	GetShopsTotal(in *input.ShopsTotalInput) (*output.ShopsTotalOutput, error)
 	GetShops(in *input.ShopsInput) (*output.ShopsOutput, error)
 	GetShop(in *input.ShopInput) (*output.ShopOutput, error)
 }
@@ -29,7 +34,47 @@ func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepo
 	}
 }
 
+func (u *ShopUsecase) getDefaultYear() (int32, error) {
+	// TODO 見直し
+	//now, err := u.config.GetTime()
+	//if err != nil {
+	//	return 0, err
+	//}
+	//return int32(now.Year()), nil
+	return defaultYear, nil
+}
+
+func (u *ShopUsecase) GetShopsTotal(in *input.ShopsTotalInput) (*output.ShopsTotalOutput, error) {
+	year := in.ShopsTotalRequest.GetYear()
+	if year == 0 {
+		var err error
+		year, err = u.getDefaultYear()
+		if err != nil {
+			return &output.ShopsTotalOutput{}, err
+		}
+	}
+
+	shopsTotal, err := u.shop.GetShopsTotal(year)
+	if err != nil {
+		return &output.ShopsTotalOutput{}, err
+	}
+
+	return &output.ShopsTotalOutput{
+		ShopsTotalResponse: pb.ShopsTotalResponse{
+			TotalNum: shopsTotal,
+		},
+	}, nil
+}
+
 func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error) {
+	year := in.ShopsRequest.GetYear()
+	if year == 0 {
+		var err error
+		year, err = u.getDefaultYear()
+		if err != nil {
+			return &output.ShopsOutput{}, err
+		}
+	}
 	userId := in.ShopsRequest.GetUserId()
 	searchTypes := in.ShopsRequest.GetSearchTypes()
 	keywords := in.ShopsRequest.GetKeyword()
@@ -52,7 +97,7 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		return &output.ShopsOutput{}, err
 	}
 
-	shops, err := u.shop.GetShops(&now, userId, keywordParams, searchParams, orderParams)
+	shops, err := u.shop.GetShops(&now, userId, year, keywordParams, searchParams, orderParams)
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}

@@ -1,8 +1,10 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-to/egp_backend/util"
+	"gorm.io/gorm"
 	"slices"
 	"time"
 )
@@ -110,7 +112,8 @@ func (ShopsTime) TableName() string {
 }
 
 type IShopModel interface {
-	FindShops(time *time.Time, userId string, keywordList []string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
+	CountShopsTotal(year int32) (int64, error)
+	FindShops(time *time.Time, userId string, year int32, keywordList []string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
 	FindShop(time *time.Time, userId string, shopId int64) (*ShopDetail, error)
 }
 
@@ -130,7 +133,20 @@ func NewShopModel(db DB) *ShopModel {
 	return &ShopModel{db: db}
 }
 
-func (m *ShopModel) FindShops(time *time.Time, userId string, keywordParams []string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
+func (m *ShopModel) CountShopsTotal(year int32) (int64, error) {
+	count := int64(0)
+	if err := m.db.Conn.
+		Model(&Shop{}).
+		Joins("INNER JOIN events ON shops.event_id = events.id").
+		Where("events.year = ?", year).
+		Count(&count).Error; err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return int64(-1), err
+	}
+
+	return count, nil
+}
+
+func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywordParams []string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
 	lat := 35.64531919787909
 	lng := 139.7223368970176
 	stDistance := fmt.Sprintf("ST_Distance(shops_location.location, 'POINT(%f %f)', false)", lat, lng)
@@ -216,6 +232,7 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, keywordParams []st
 		Joins("LEFT JOIN shops_time AS shops_time_night ON shops.id = shops_time_night.shop_id AND "+shopsTimeTomorrowCondition+"",
 			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
 		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ? AND stamps.deleted_at IS NULL", userId).
+		Where("events.year = ?", year).
 		Order("CAST(shops.no AS INTEGER) ASC")
 
 	/* 検索条件の指定があれば、検索条件を追加 */
