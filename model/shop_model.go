@@ -113,16 +113,23 @@ func (ShopsTime) TableName() string {
 
 type IShopModel interface {
 	CountShopsTotal(year int32) (int64, error)
-	FindShops(time *time.Time, userId string, year int32, keywordList []string, searchParams []int32, orderParams []int32) (*ShopsResult, error)
+	FindShops(time *time.Time, userId string, year int32, keywordList []string, searchParams []int32, orderParam int32, latitude, longitude float64) (*ShopsResult, error)
 	FindShop(time *time.Time, userId string, shopId int64) (*ShopDetail, error)
 }
 
+// search types
 const (
 	SearchTypeInCurrentSales = iota
 	SearchTypeNotYet
 	SearchTypeIrregularHoliday
 	SearchTypeNeedsReservation
 	SearchTypeBeerCocktail
+)
+
+// sort order
+const (
+	SortOrderNo = iota
+	SortOrderDistance
 )
 
 type ShopModel struct {
@@ -146,10 +153,8 @@ func (m *ShopModel) CountShopsTotal(year int32) (int64, error) {
 	return count, nil
 }
 
-func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywordParams []string, searchParams []int32, orderParams []int32) (*ShopsResult, error) {
-	lat := 35.64531919787909
-	lng := 139.7223368970176
-	stDistance := fmt.Sprintf("ST_Distance(shops_location.location, 'POINT(%f %f)', false)", lat, lng)
+func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywordParams []string, searchParams []int32, orderParam int32, latitude, longitude float64) (*ShopsResult, error) {
+	stDistance := fmt.Sprintf("ST_Distance(shops_location.location, 'POINT(%f %f)', false)", latitude, longitude)
 
 	fields := `
 		shops.id,
@@ -232,8 +237,7 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywor
 		Joins("LEFT JOIN shops_time AS shops_time_night ON shops.id = shops_time_night.shop_id AND "+shopsTimeTomorrowCondition+"",
 			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
 		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ? AND stamps.deleted_at IS NULL", userId).
-		Where("events.year = ?", year).
-		Order("CAST(shops.no AS INTEGER) ASC")
+		Where("events.year = ?", year)
 
 	/* 検索条件の指定があれば、検索条件を追加 */
 	// 営業中の店舗で絞り込む
@@ -266,6 +270,17 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywor
 				"%", keyword, "%", "%", keyword, "%", "%", keyword, "%")
 		}
 		query = query.Where(keywordQuery)
+	}
+
+	/* ソート */
+	// No.順
+	if orderParam == SortOrderNo {
+		query = query.Order("CAST(shops.no AS INTEGER) ASC")
+	}
+	// 距離順
+	if orderParam == SortOrderDistance {
+		query = query.Order("distance ASC")
+		query = query.Order("CAST(shops.no AS INTEGER) ASC")
 	}
 
 	// クエリ実行
