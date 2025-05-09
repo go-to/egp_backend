@@ -5,6 +5,7 @@ import (
 	"github.com/go-to/egp_backend/repository"
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_backend/usecase/output"
+	"github.com/go-to/egp_backend/util"
 	"github.com/go-to/egp_protobuf/pb"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -78,8 +79,10 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	userId := in.ShopsRequest.GetUserId()
 	searchTypes := in.ShopsRequest.GetSearchTypes()
 	keywords := in.ShopsRequest.GetKeyword()
+	sortOrder := in.ShopsRequest.GetSortOrder()
+	latitude := in.ShopsRequest.GetLatitude()
+	longitude := in.ShopsRequest.GetLongitude()
 	var searchParams []int32
-	var orderParams []int32
 	for _, value := range searchTypes {
 		v := int32(value)
 		if slices.Contains(searchParams, v) {
@@ -92,19 +95,24 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	// 検索キーワードの整形
 	keywordParams := strings.Fields(keywords)
 
+	// ソート順
+	orderParam := int32(pb.SortOrderType_SORT_ORDER_NO)
+	if key, exists := pb.SortOrderType_name[int32(sortOrder)]; exists {
+		orderParam = pb.SortOrderType_value[key]
+	}
+
 	now, err := u.config.GetTime()
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
 
-	shops, err := u.shop.GetShops(&now, userId, year, keywordParams, searchParams, orderParams)
+	shops, err := u.shop.GetShops(&now, userId, year, keywordParams, searchParams, orderParam, latitude, longitude)
 	if err != nil {
 		return &output.ShopsOutput{}, err
 	}
 
 	var outputShops []*pb.Shop
 	var latLonList []string
-	fmtX := message.NewPrinter(language.Japanese)
 
 	for _, v := range *shops {
 		inCurrentSales := true
@@ -121,8 +129,8 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		}
 		latLonList = append(latLonList, latLon)
 
-		// 距離
-		distance := fmtX.Sprintf("%dm", int(v.Distance))
+		// 距離（1,000m以上の場合は単位をkmに変更する）
+		distance := util.FormatDistance(v.Distance)
 
 		isStamped := false
 		if v.NumberOfTimes > 0 {
@@ -130,10 +138,10 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		}
 
 		outputShops = append(outputShops, &pb.Shop{
-			ID:                         v.ID,
-			EventID:                    v.EventID,
+			Id:                         v.ID,
+			EventId:                    v.EventID,
 			Year:                       v.Year,
-			CategoryID:                 pb.CategoryType(v.CategoryID),
+			CategoryId:                 pb.CategoryType(v.CategoryID),
 			CategoryName:               v.CategoryName,
 			No:                         v.No,
 			ShopName:                   v.ShopName,
@@ -209,10 +217,10 @@ func (u *ShopUsecase) GetShop(in *input.ShopInput) (*output.ShopOutput, error) {
 		}
 
 		outputShop = &pb.Shop{
-			ID:                         shop.ID,
-			EventID:                    shop.EventID,
+			Id:                         shop.ID,
+			EventId:                    shop.EventID,
 			Year:                       shop.Year,
-			CategoryID:                 pb.CategoryType(shop.CategoryID),
+			CategoryId:                 pb.CategoryType(shop.CategoryID),
 			CategoryName:               shop.CategoryName,
 			No:                         shop.No,
 			ShopName:                   shop.ShopName,

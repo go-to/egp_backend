@@ -58,3 +58,12 @@ func americanWeekNumber(year, month, day int) int {
 	weeklyNumber := math.Floor((week.Hours() / 24) / 7)
 	return int(weeklyNumber) + 1
 }
+
+func FormatDistance(meter float64) string {
+	if meter < 1000 {
+		return fmt.Sprintf("%.0fm", meter)
+	}
+	km := meter / 1000
+	roundedKm := math.Round(km*10) / 10
+	return fmt.Sprintf("%.1fkm ", roundedKm)
+}
