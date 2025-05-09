@@ -27,9 +27,13 @@ run:
 	go run main.go
 grpcurl-shops:
 	grpcurl -plaintext localhost:8080 egp.EgpService.GetShops
-clean-branch:
+main-branch:
 	git switch main
 	git branch | grep -v "main" | xargs git branch -d
+	git pull
+develop-branch:
+	git switch develop
+	git branch | grep -v "develop" | xargs git branch -d
 	git pull
 update-gomod:
 	go clean -cache -modcache -i -r
