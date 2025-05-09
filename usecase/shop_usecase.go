@@ -130,10 +130,10 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 		}
 
 		outputShops = append(outputShops, &pb.Shop{
-			ID:                         v.ID,
-			EventID:                    v.EventID,
+			Id:                         v.ID,
+			EventId:                    v.EventID,
 			Year:                       v.Year,
-			CategoryID:                 pb.CategoryType(v.CategoryID),
+			CategoryId:                 pb.CategoryType(v.CategoryID),
 			CategoryName:               v.CategoryName,
 			No:                         v.No,
 			ShopName:                   v.ShopName,
@@ -209,10 +209,10 @@ func (u *ShopUsecase) GetShop(in *input.ShopInput) (*output.ShopOutput, error) {
 		}
 
 		outputShop = &pb.Shop{
-			ID:                         shop.ID,
-			EventID:                    shop.EventID,
+			Id:                         shop.ID,
+			EventId:                    shop.EventID,
 			Year:                       shop.Year,
-			CategoryID:                 pb.CategoryType(shop.CategoryID),
+			CategoryId:                 pb.CategoryType(shop.CategoryID),
 			CategoryName:               shop.CategoryName,
 			No:                         shop.No,
 			ShopName:                   shop.ShopName,
