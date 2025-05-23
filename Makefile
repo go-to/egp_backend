@@ -19,6 +19,9 @@ logs-api:
 	docker logs -f ${DOCKER_CONTAINER_API}
 logs-db:
 	docker logs -f ${DOCKER_CONTAINER_DB}
+# e.x.) make db-migrate-add file_name='create_xxxx_table'
+db-migrate-add:
+	migrate create -ext sql -dir migrations -seq ${file_name}
 db-migrate-up:
 	migrate -path migrations -database 'postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?search_path=egp&sslmode=disable' -verbose up
 db-migrate-down:
