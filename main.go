@@ -36,17 +36,20 @@ func main() {
 
 	// model設定
 	configModel := model.NewConfigModel(dbConn)
+	eventModel := model.NewEventModel(dbConn)
 	shopModel := model.NewShopModel(dbConn)
 	stampModel := model.NewStampModel(dbConn)
 
 	// repository設定
 	configRepository := repository.NewConfigRepository(*configModel)
+	eventRepository := repository.NewEventRepository(*eventModel)
 	shopRepository := repository.NewShopRepository(*shopModel)
 	stampRepository := repository.NewStampRepository(*stampModel)
 
 	// usecase設定
 	shopUsecase := usecase.NewShopUseCase(
 		*configRepository,
+		*eventRepository,
 		*shopRepository,
 	)
 	stampUsecase := usecase.NewStampUseCase(
