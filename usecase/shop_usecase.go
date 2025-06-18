@@ -260,15 +260,27 @@ func (u *ShopUsecase) GetShop(in *input.ShopInput) (*output.ShopOutput, error) {
 		}
 	}
 
-	activeEvent, err := u.event.GetActiveEvents(&now)
+	isEventPeriod := false
+	isCheckEventPeriod, err := u.config.IsCheckEventPeriod()
 	if err != nil {
 		return &output.ShopOutput{}, err
+	}
+	if isCheckEventPeriod {
+		activeEvent, err := u.event.GetActiveEvents(&now)
+		if err != nil {
+			return &output.ShopOutput{}, err
+		}
+		if activeEvent.ID != 0 {
+			isEventPeriod = true
+		}
+	} else {
+		isEventPeriod = true
 	}
 
 	return &output.ShopOutput{
 		ShopResponse: pb.ShopResponse{
 			Shop:          outputShop,
-			IsEventPeriod: activeEvent.ID != 0,
+			IsEventPeriod: isEventPeriod,
 		},
 	}, nil
 }
