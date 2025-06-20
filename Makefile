@@ -2,6 +2,7 @@
 time=
 
 # env
+DOCKER_CONTAINER_WEB=nginx
 DOCKER_CONTAINER_API=api
 DOCKER_CONTAINER_DB=postgres
 DB_HOST=localhost
@@ -15,6 +16,8 @@ up:
 	docker compose up -d
 down:
 	docker compose down
+logs-web:
+	docker logs -f ${DOCKER_CONTAINER_WEB}
 logs-api:
 	docker logs -f ${DOCKER_CONTAINER_API}
 logs-db:
