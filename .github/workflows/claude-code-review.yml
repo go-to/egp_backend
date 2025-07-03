@@ -2,7 +2,7 @@ name: Claude Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [labeled]
     # Optional: Only run on specific file changes
     # paths:
     #   - "src/**/*.ts"
@@ -24,6 +24,9 @@ jobs:
       pull-requests: read
       issues: read
       id-token: write
+      
+    if: |
+      github.event.label.name == 'claude'
     
     steps:
       - name: Checkout repository
