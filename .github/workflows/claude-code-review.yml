@@ -29,7 +29,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Run Claude Code Review
         id: claude-review
@@ -53,6 +53,7 @@ jobs:
             具体的な改善提案を含む建設的なフィードバックを提供してください。
             インラインコメントを使用して、懸念事項を具体的に強調してください。
             どのように修正するべきか、具体的に提示してください。
+            該当行単位でインラインコメントとして提供してください。
 
           # Optional: Customize review based on file types
           # direct_prompt: |
