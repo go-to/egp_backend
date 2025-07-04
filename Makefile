@@ -6,6 +6,7 @@ include .env
 DOCKER_CONTAINER_WEB=nginx
 DOCKER_CONTAINER_API=api
 DOCKER_CONTAINER_DB=postgres
+DB_HOST=localhost
 
 # cmd
 up:

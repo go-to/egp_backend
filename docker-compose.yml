@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS:-password}
+      POSTGRES_PASSWORD: ${DB_PASS}
       TZ: ${LOCATION_NAME}
       LANG: "ja_JP.UTF-8"
     build:
@@ -60,7 +60,7 @@ services:
       - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
     environment:
       PGADMIN_DEFAULT_EMAIL: egp@example.com
-      PGADMIN_DEFAULT_PASSWORD: ${DB_PASS:-password}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASS}
       PGADMIN_CONFIG_SERVER_MODE: "True"
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "True"
     depends_on:
