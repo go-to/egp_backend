@@ -29,7 +29,8 @@ func main() {
 	dbSchema := os.Getenv("DB_SCHEMA")
 	dbName := os.Getenv("DB_NAME")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s search_path=%s port=%s sslmode=disable TimeZone=%s", dbHost, dbUser, dbPass, dbName, dbSchema, dbPort, locationName)
-	dbConn, err := model.Init(dsn)
+	sqlDebug := os.Getenv("SQL_DEBUG")
+	dbConn, err := model.Init(dsn, sqlDebug)
 	if err != nil {
 		log.Fatal(err)
 	}
