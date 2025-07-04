@@ -46,13 +46,10 @@ services:
       - "./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"
     links:
       - "api"
-    healthcheck:
-      test: [ "CMD", "curl http://localhost:8080/" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
   pgadmin4:
     image: dpage/pgadmin4:8.4
+    platform: linux/amd64
+    container_name: pgadmin4
     ports:
       - "8888:80"
     volumes:
