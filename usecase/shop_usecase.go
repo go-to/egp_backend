@@ -25,12 +25,14 @@ type IShopUsecase interface {
 
 type ShopUsecase struct {
 	config repository.IConfigRepository
+	event  repository.IEventRepository
 	shop   repository.IShopRepository
 }
 
-func NewShopUseCase(config repository.ConfigRepository, shop repository.ShopRepository) *ShopUsecase {
+func NewShopUseCase(config repository.ConfigRepository, event repository.EventRepository, shop repository.ShopRepository) *ShopUsecase {
 	return &ShopUsecase{
 		config: &config,
+		event:  &event,
 		shop:   &shop,
 	}
 }
@@ -258,9 +260,27 @@ func (u *ShopUsecase) GetShop(in *input.ShopInput) (*output.ShopOutput, error) {
 		}
 	}
 
+	isEventPeriod := false
+	isCheckEventPeriod, err := u.config.IsCheckEventPeriod()
+	if err != nil {
+		return &output.ShopOutput{}, err
+	}
+	if isCheckEventPeriod {
+		activeEvent, err := u.event.GetActiveEvents(&now)
+		if err != nil {
+			return &output.ShopOutput{}, err
+		}
+		if activeEvent.ID != 0 {
+			isEventPeriod = true
+		}
+	} else {
+		isEventPeriod = true
+	}
+
 	return &output.ShopOutput{
 		ShopResponse: pb.ShopResponse{
-			Shop: outputShop,
+			Shop:          outputShop,
+			IsEventPeriod: isEventPeriod,
 		},
 	}, nil
 }

@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "egp",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "egp",
+      "Username": "egp_user",
+      "SSLMode": "prefer"
+    }
+  }
+}
