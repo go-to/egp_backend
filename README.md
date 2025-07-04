@@ -1,11 +1,12 @@
 # EGP Backend
 
-A Go-based gRPC backend service for the EGP (Ebisu-GP - Ebisu Beer Grand Prix) system, built with Clean Architecture principles.
+A Go-based gRPC backend service for the EGP (Ebisu-GP - Ebisu Beer Grand Prix) system, built with Clean Architecture
+principles.
 
 ## Architecture
 
 - **Model Layer**: Database models using GORM with PostgreSQL
-- **Repository Layer**: Data access layer with interfaces  
+- **Repository Layer**: Data access layer with interfaces
 - **UseCase Layer**: Business logic implementation
 - **Router Layer**: gRPC server with Protocol Buffers
 
@@ -27,13 +28,14 @@ make up
 # Run database migrations
 make db-migrate-up
 
-# Test the API
+# Test the readAPI
 make grpcurl-shops
 ```
 
 ## Development Commands
 
 ### Docker Environment
+
 ```bash
 make up          # Start all services
 make down        # Stop all services
@@ -43,6 +45,7 @@ make logs-web    # View nginx logs
 ```
 
 ### Database Operations
+
 ```bash
 # Create new migration
 make db-migrate-create name=your_migration_name
@@ -55,6 +58,7 @@ make db-migrate-down
 ```
 
 ### Application
+
 ```bash
 make run         # Run the application locally
 go run main.go   # Alternative way to run
@@ -63,6 +67,7 @@ go run main.go   # Alternative way to run
 ## gRPC Service
 
 The service implements `EgpService` with endpoints for:
+
 - `GetShops` - Retrieve shop listings
 - `GetShop` - Get individual shop details
 - `GetShopsTotal` - Get total shop count
@@ -74,6 +79,7 @@ All endpoints require API key authentication via metadata.
 ## Environment Setup
 
 Required environment variables (typically in `.env` file):
+
 - `DB_USER`, `DB_PASS`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_SCHEMA`
 - `API_PORT`, `API_KEY`
 - `LOCATION_NAME` (timezone)
@@ -81,6 +87,7 @@ Required environment variables (typically in `.env` file):
 ## Database Schema
 
 The database uses PostgreSQL with a schema named `egp`. Key tables include:
+
 - `events` - Event information
 - `shops` - Shop details with location and time data
 - `stamps` - User stamp collection
