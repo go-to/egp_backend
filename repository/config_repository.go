@@ -7,6 +7,7 @@ import (
 
 type IConfigRepository interface {
 	GetTime() (time.Time, error)
+	IsCheckEventPeriod() (bool, error)
 }
 
 type ConfigRepository struct {
@@ -19,4 +20,8 @@ func NewConfigRepository(m model.ConfigModel) *ConfigRepository {
 
 func (r *ConfigRepository) GetTime() (time.Time, error) {
 	return r.model.GetTime()
+}
+
+func (r *ConfigRepository) IsCheckEventPeriod() (bool, error) {
+	return r.model.IsCheckEventPeriod()
 }
