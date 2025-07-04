@@ -1,4 +1,3 @@
-docker/
 db/
 tmp/
 pre_cmd.txt
@@ -6,3 +5,4 @@ post_cmd.txt
 .env
 go.work
 go.work.sum
+.air.toml

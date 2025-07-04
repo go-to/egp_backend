@@ -2,19 +2,20 @@
 time=
 
 # env
+include .env
+DOCKER_CONTAINER_WEB=nginx
 DOCKER_CONTAINER_API=api
 DOCKER_CONTAINER_DB=postgres
 DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=egp
-DB_USER=egp_user
-DB_PASS=password
 
 # cmd
 up:
+	@if [ ! -e ".air.toml" ]; then bash ./docker/api/air.sh ;fi
 	docker compose up -d
 down:
 	docker compose down
+logs-web:
+	docker logs -f ${DOCKER_CONTAINER_WEB}
 logs-api:
 	docker logs -f ${DOCKER_CONTAINER_API}
 logs-db:
