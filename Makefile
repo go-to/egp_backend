@@ -9,6 +9,7 @@ DOCKER_CONTAINER_DB=postgres
 
 # cmd
 up:
+	@if [ ! -e ".air.toml" ]; then bash ./docker/api/air.sh ;fi
 	docker compose up -d
 down:
 	docker compose down

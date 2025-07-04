@@ -5,3 +5,4 @@ post_cmd.txt
 .env
 go.work
 go.work.sum
+.air.toml
