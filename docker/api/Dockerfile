@@ -23,6 +23,6 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 COPY --from=base /go/src/app/main .
-EXPOSE 8080
+EXPOSE 50051
 
 CMD ["./main"]
