@@ -16,7 +16,7 @@ RUN go install github.com/air-verse/air@v1.61.5
 CMD ["air"]
 
 FROM base AS production
-FROM alpine3.21
+FROM alpine:3.21
 
 RUN apk --no-cache add ca-certificates
 
