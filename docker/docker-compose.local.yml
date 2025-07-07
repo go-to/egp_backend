@@ -1,14 +1,10 @@
 services:
   postgres:
     platform: linux/amd64
-    ports:
-      - "5432:5432"
   api:
     platform: linux/amd64
     build:
       target: local
-    ports:
-      - "50051:50051"
   nginx:
     image: nginx:1.28
     platform: linux/amd64

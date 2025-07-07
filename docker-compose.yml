@@ -18,6 +18,8 @@ services:
     volumes:
       - "./db/postgres/data:/var/lib/postgresql/data"
       - "./docker/postgres/init:/docker-entrypoint-initdb.d"
+    ports:
+      - "5432:5432"
   api:
     container_name: api
     environment:
@@ -27,7 +29,8 @@ services:
       dockerfile: "./docker/api/Dockerfile"
     volumes:
       - ./:/go/src/app
-#      - ../egp_protobuf:/go/src/egp_protobuf
     depends_on:
       postgres:
         condition: service_healthy
+    ports:
+      - "50051:50051"
