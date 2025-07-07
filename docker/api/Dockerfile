@@ -2,6 +2,7 @@ FROM golang:1.23.4-alpine3.21 AS base
 WORKDIR /go/src/app
 RUN apk update
 RUN apk add curl
+RUN apk add make
 
 COPY go.mod go.sum ./
 RUN go mod download
