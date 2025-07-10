@@ -11,9 +11,9 @@ DB_HOST=localhost
 # cmd
 up:
 	@if [ ! -e ".air.toml" ]; then bash ./docker/api/air.sh ;fi
-	docker compose up -d
+	docker compose -f docker-compose.yml -f ./docker/docker-compose.${ENV}.yml up -d
 down:
-	docker compose down
+	docker compose -f docker-compose.yml -f ./docker/docker-compose.${ENV}.yml down
 logs-web:
 	docker logs -f ${DOCKER_CONTAINER_WEB}
 logs-api:
