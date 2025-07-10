@@ -223,8 +223,10 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywor
 	tomorrowWeekNum := util.GetWeekNumber(&tomorrow)
 	tomorrowDayOfWeek := util.GetWeekDay(&tomorrow)
 	nowTime := util.GetTime(time)
-	shopsTimeTodayCondition := "shops_time_day.week_number = ? AND shops_time_day.day_of_week = ? AND shops_time_day.is_holiday = false AND shops_time_day.start_time <= ? AND shops_time_day.end_time >= ?"
-	shopsTimeTomorrowCondition := "shops_time_night.week_number = ? AND shops_time_night.day_of_week = ? AND shops_time_night.is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND shops_time_night.start_time <= ? AND shops_time_night.end_time >= ?"
+	shopsTimeTodayCondition := "week_number = ? AND day_of_week = ? AND is_holiday = false AND start_time <= ? AND end_time >= ?"
+	shopsTimeTodayConditionWithPrefix := "shops_time_day.week_number = ? AND shops_time_day.day_of_week = ? AND shops_time_day.is_holiday = false AND shops_time_day.start_time <= ? AND shops_time_day.end_time >= ?"
+	shopsTimeTomorrowCondition := "week_number = ? AND day_of_week = ? AND is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND start_time <= ? AND end_time >= ?"
+	shopsTimeTomorrowConditionWithPrefix := "shops_time_night.week_number = ? AND shops_time_night.day_of_week = ? AND shops_time_night.is_holiday = false AND ? - INTERVAL '12 hour' <= '00:00:00' AND shops_time_night.start_time <= ? AND shops_time_night.end_time >= ?"
 
 	query := m.db.Conn.
 		Model(&Shop{}).
@@ -232,17 +234,15 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywor
 		Joins("INNER JOIN events ON shops.event_id = events.id").
 		Joins("INNER JOIN categories ON shops.category_id = categories.id").
 		Joins("INNER JOIN shops_location ON shops.id = shops_location.shop_id").
-		Joins("LEFT JOIN shops_time AS shops_time_day ON shops.id = shops_time_day.shop_id AND "+shopsTimeTodayCondition+"",
-			todayWeekNum, todayDayOfWeek, nowTime, nowTime).
-		Joins("LEFT JOIN shops_time AS shops_time_night ON shops.id = shops_time_night.shop_id AND "+shopsTimeTomorrowCondition+"",
-			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
+		Joins("LEFT JOIN (SELECT * FROM shops_time WHERE "+shopsTimeTodayCondition+") AS shops_time_day ON shops.id = shops_time_day.shop_id", todayWeekNum, todayDayOfWeek, nowTime, nowTime).
+		Joins("LEFT JOIN (SELECT * FROM shops_time WHERE "+shopsTimeTomorrowCondition+") AS shops_time_night ON shops.id = shops_time_night.shop_id", tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
 		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ? AND stamps.deleted_at IS NULL", userId).
 		Where("events.year = ?", year)
 
 	/* 検索条件の指定があれば、検索条件を追加 */
 	// 営業中の店舗で絞り込む
 	if slices.Contains(searchParams, SearchTypeInCurrentSales) {
-		query = query.Where("("+shopsTimeTodayCondition+") OR ("+shopsTimeTomorrowCondition+")",
+		query = query.Where("("+shopsTimeTodayConditionWithPrefix+") OR ("+shopsTimeTomorrowConditionWithPrefix+")",
 			todayWeekNum, todayDayOfWeek, nowTime, nowTime,
 			tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime)
 	}
