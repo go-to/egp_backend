@@ -29,24 +29,28 @@ func main() {
 	dbSchema := os.Getenv("DB_SCHEMA")
 	dbName := os.Getenv("DB_NAME")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s search_path=%s port=%s sslmode=disable TimeZone=%s", dbHost, dbUser, dbPass, dbName, dbSchema, dbPort, locationName)
-	dbConn, err := model.Init(dsn)
+	sqlDebug := os.Getenv("SQL_DEBUG")
+	dbConn, err := model.Init(dsn, sqlDebug)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// model設定
 	configModel := model.NewConfigModel(dbConn)
+	eventModel := model.NewEventModel(dbConn)
 	shopModel := model.NewShopModel(dbConn)
 	stampModel := model.NewStampModel(dbConn)
 
 	// repository設定
 	configRepository := repository.NewConfigRepository(*configModel)
+	eventRepository := repository.NewEventRepository(*eventModel)
 	shopRepository := repository.NewShopRepository(*shopModel)
 	stampRepository := repository.NewStampRepository(*stampModel)
 
 	// usecase設定
 	shopUsecase := usecase.NewShopUseCase(
 		*configRepository,
+		*eventRepository,
 		*shopRepository,
 	)
 	stampUsecase := usecase.NewStampUseCase(

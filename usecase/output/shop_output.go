@@ -11,5 +11,6 @@ type ShopsOutput struct {
 }
 
 type ShopOutput struct {
-	ShopResponse pb.ShopResponse
+	ShopResponse  pb.ShopResponse
+	IsEventPeriod bool
 }

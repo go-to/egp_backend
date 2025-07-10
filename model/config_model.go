@@ -19,6 +19,7 @@ func (Config) TableName() string {
 
 type IConfigModel interface {
 	GetTime() (time.Time, error)
+	IsCheckEventPeriod() (bool, error)
 }
 
 type ConfigModel struct {
@@ -49,4 +50,21 @@ func (m *ConfigModel) GetTime() (time.Time, error) {
 	}
 
 	return util.Now(), nil
+}
+
+func (m *ConfigModel) IsCheckEventPeriod() (bool, error) {
+	confName := "is_check_event_period"
+	res := m.db.Conn.
+		Model(&Config{}).
+		Select("conf_value").
+		Where("conf_name = ?", confName).
+		Scan(&config)
+	if res.Error != nil {
+		return false, res.Error
+	}
+
+	if config.ConfValue == "1" {
+		return true, nil
+	}
+	return false, nil
 }

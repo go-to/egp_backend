@@ -1,0 +1,7 @@
+services:
+  postgres:
+    restart: always
+  api:
+    build:
+      target: production
+    restart: always
