@@ -234,9 +234,9 @@ func (m *ShopModel) FindShops(time *time.Time, userId string, year int32, keywor
 		Joins("INNER JOIN events ON shops.event_id = events.id").
 		Joins("INNER JOIN categories ON shops.category_id = categories.id").
 		Joins("INNER JOIN shops_location ON shops.id = shops_location.shop_id").
-		Joins("LEFT JOIN (SELECT * FROM shops_time WHERE "+shopsTimeTodayCondition+") AS shops_time_day ON shops.id = shops_time_day.shop_id", todayWeekNum, todayDayOfWeek, nowTime, nowTime).
-		Joins("LEFT JOIN (SELECT * FROM shops_time WHERE "+shopsTimeTomorrowCondition+") AS shops_time_night ON shops.id = shops_time_night.shop_id", tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
-		Joins("LEFT JOIN stamps ON shops.id = stamps.shop_id AND stamps.user_id = ? AND stamps.deleted_at IS NULL", userId).
+		Joins("LEFT JOIN (SELECT shop_id, week_number, day_of_week, start_time, end_time, is_holiday FROM shops_time WHERE "+shopsTimeTodayCondition+") AS shops_time_day ON shops.id = shops_time_day.shop_id", todayWeekNum, todayDayOfWeek, nowTime, nowTime).
+		Joins("LEFT JOIN (SELECT shop_id, week_number, day_of_week, start_time, end_time, is_holiday FROM shops_time WHERE "+shopsTimeTomorrowCondition+") AS shops_time_night ON shops.id = shops_time_night.shop_id", tomorrowWeekNum, tomorrowDayOfWeek, nowTime, nowTime, nowTime).
+		Joins("LEFT JOIN (SELECT shop_id, number_of_times FROM stamps WHERE user_id = ? AND deleted_at IS NULL) AS stamps ON shops.id = stamps.shop_id", userId).
 		Where("events.year = ?", year)
 
 	/* 検索条件の指定があれば、検索条件を追加 */
