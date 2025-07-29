@@ -15,6 +15,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"time"
 )
 
 type Server struct {
@@ -97,10 +98,12 @@ func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsR
 		ShopsRequest: req,
 	}
 
+	t := time.Now()
 	out, err := s.Usecase.Shop.GetShops(&in)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("process time: $s\n", time.Since(t))
 
 	return &out.ShopsResponse, nil
 }
