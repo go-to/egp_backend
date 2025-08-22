@@ -2,6 +2,9 @@ package usecase
 
 import (
 	"fmt"
+	"slices"
+	"strings"
+
 	"github.com/go-to/egp_backend/repository"
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_backend/usecase/output"
@@ -9,8 +12,6 @@ import (
 	"github.com/go-to/egp_protobuf/pb"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"slices"
-	"strings"
 )
 
 // TODO 見直し
@@ -179,6 +180,12 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			NumberOfTimes:              v.NumberOfTimes,
 			IsStamped:                  isStamped,
 		})
+	}
+
+	fmt.Println("")
+	fmt.Printf("lat: %+v, long: %+v\n", latitude, longitude)
+	if len(outputShops) > 0 {
+		fmt.Printf("dist: %+v\n", outputShops[0].Distance)
 	}
 
 	return &output.ShopsOutput{

@@ -3,6 +3,12 @@ package router
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/go-to/egp_backend/usecase"
 	"github.com/go-to/egp_backend/usecase/input"
 	"github.com/go-to/egp_protobuf/pb"
@@ -11,11 +17,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"time"
 )
 
 type Server struct {
@@ -103,7 +104,7 @@ func (s *Server) GetShops(ctx context.Context, req *pb.ShopsRequest) (*pb.ShopsR
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("process time: $s\n", time.Since(t))
+	fmt.Printf("process time: %s\n", time.Since(t))
 
 	return &out.ShopsResponse, nil
 }
