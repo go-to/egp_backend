@@ -16,6 +16,8 @@ import (
 
 // TODO 見直し
 const defaultYear = int32(2025)
+const initialLatitude = 35.64691938518296
+const initialLongitude = 139.71008179999998
 
 type IShopUsecase interface {
 	getDefaultYear() (int32, error)
@@ -85,6 +87,12 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 	sortOrder := in.ShopsRequest.GetSortOrder()
 	latitude := in.ShopsRequest.GetLatitude()
 	longitude := in.ShopsRequest.GetLongitude()
+
+	if latitude == 0 && longitude == 0 {
+		latitude = initialLatitude
+		longitude = initialLongitude
+	}
+
 	var searchParams []int32
 	for _, value := range searchTypes {
 		v := int32(value)
@@ -123,12 +131,12 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			inCurrentSales = false
 		}
 		// 緯度経度が同じ場合は、重なり防止のためにマーカーの位置をずらす
-		latitude := v.Latitude
-		longitude := v.Longitude
-		latLon := fmt.Sprintf("%f,%f", latitude, longitude)
+		lat := v.Latitude
+		lon := v.Longitude
+		latLon := fmt.Sprintf("%f,%f", lat, lon)
 		if slices.Contains(latLonList, latLon) {
-			latitude += 0.00002
-			longitude += 0.00002
+			lat += 0.00002
+			lon += 0.00002
 		}
 		latLonList = append(latLonList, latLon)
 
@@ -168,8 +176,8 @@ func (u *ShopUsecase) GetShops(in *input.ShopsInput) (*output.ShopsOutput, error
 			NormalizedUseHachipay:      v.NormalizedUseHachipay,
 			IsOpenHoliday:              v.IsOpenHoliday,
 			IsIrregularHoliday:         v.IsIrregularHoliday,
-			Latitude:                   latitude,
-			Longitude:                  longitude,
+			Latitude:                   lat,
+			Longitude:                  lon,
 			Distance:                   distance,
 			WeekNumber:                 v.WeekNumber,
 			DayOfWeek:                  int32(v.DayOfWeek),
